@@ -576,7 +576,8 @@ class Vwm_surveys {
 	 */
 	private function add_submission_cookie($hash)
 	{
-		$cookie = $_COOKIE['vwm_surveys_survey_submissions'];
+		// If cookie is set, grab it
+		$cookie = isset($_COOKIE['vwm_surveys_survey_submissions']) ? $_COOKIE['vwm_surveys_survey_submissions'] : NULL;
 
 		$hashes = $cookie ? explode(',', $cookie) : array();
 
