@@ -1,0 +1,293 @@
+/*******************************************************************************
+Edit survey
+*******************************************************************************/
+
+#vwm_surveys_pages {
+	list-style-type: none;
+}
+
+#vwm_surveys_pages > li {
+	padding: 0px;
+	margin-top: 10px;
+}
+
+#vwm_surveys_pages > li:first-child {
+	margin-top: 0px;
+}
+
+#vwm_surveys_pages label.page_title span {
+	display: none;
+}
+
+#vwm_surveys_pages label.page_title input {
+	border: 0px none;
+	padding: 0px;
+	margin: 0px;
+	font-size: 24px;
+	background-color: transparent;
+	border-radius: 0px;
+}
+
+.vwm_surveys_questions {
+	list-style-type: none;
+	margin: 0px;
+}
+
+.vwm_surveys_questions > li {
+	position: relative;
+	background-color: #b2bec0;
+	border: 1px solid #999;
+	border-radius: 5px;
+	padding: 10px;
+	margin: 15px 0px;
+}
+
+.question_title span {
+	display: none;
+}
+
+.question_title input {
+	color: #fff;
+	background-color: transparent;
+	margin: 0px;
+	padding: 0px;
+	border: 0px;
+	font-size: 18px;
+	text-shadow: 0px 1px 0px #666;
+}
+
+.question_title input:focus {
+	margin: 0px;
+	padding: 0px;
+	border: 0px;
+	background-color: rgba(255,255,255,.1);
+}
+
+.question_type {
+	display: none !important;
+}
+
+/* Radios and checkboxes */
+
+.vwm_radios li,
+.vwm_radio_matrix li,
+.vwm_checkboxes li {
+	margin: 5px 0px;
+}
+
+.vwm_radios ul input[type="text"],
+.vwm_radio_matrix ul input[type="text"],
+.vwm_checkboxes ul input[type="text"] {
+	width: 85%;
+}
+
+.vwm_radios .new_radio label,
+.vwm_radio_matrix .new_matrix_option label,
+.vwm_checkboxes .new_checkbox label{
+	display: inline;
+}
+
+.vwm_radios .new_radio input[type="text"],
+.vwm_radio_matrix .new_matrix_option input[type="text"],
+.vwm_checkboxes .new_checkbox input[type="text"]{
+	width: 25%;
+	display: inline;
+}
+
+.ui-sortable li {
+	padding-left: 25px;
+	background: url(data:image/gif;base64,R0lGODlhDwAPAKECAJOTk6Kiov///////yH5BAEKAAIALAAAAAAPAA8AAAIXlI+py+0JQpyyzoeX3TTmf3ScBZYmVgAAOw==) no-repeat left;
+}
+
+/*******************************************************************************
+Page controls
+*******************************************************************************/
+
+.add_question, .delete_page {
+	width: 50%;
+	float: left;
+}
+
+.delete_page a {
+	float: right;
+}
+
+.add_page {
+	margin-top: 30px;
+}
+
+.add_page input {
+	width: 25%;
+	
+}
+
+.add_page a {
+	margin-left: 5px;
+}
+
+/*******************************************************************************
+Question controls
+*******************************************************************************/
+
+.question_controls {
+	position: absolute;
+	width: 90px;
+	height: 30px;
+	top: 0px;
+	right: 0px;
+	background-color: #27343c;
+	border-radius: 0px 5px 0px 5px;
+	display: none;
+}
+
+.vwm_surveys_question:hover .question_controls {
+	display: block;
+}
+
+.question_controls a {
+	display: block;
+	width: 30px;
+	height: 30px;
+	float: left;
+	text-decoration: none !important;
+	color: #b2bec0 !important;
+	line-height: 30px;
+	text-align: center;
+	font-size: 16px;
+}
+
+.question_controls a:hover,
+.question_controls a:focus {
+	color: #fff !important;
+}
+
+.question_controls .move_question {
+	display: block;
+	width: 60px;
+	height: 30px;
+	float: left;
+}
+
+/*******************************************************************************
+Bar chart
+*******************************************************************************/
+
+.bar_chart > ul > li {
+	margin: 10px 0px;
+}
+
+.bar_chart > ul > li p {
+	margin: 0px !important;
+}
+
+.bar_chart > ul > li .bar {
+	padding: 3px 0px;
+	background-color: #d91350;
+	color: #fff;
+	text-align: right;
+}
+
+.bar_chart > ul > li .bar span {
+	background-color: #ba2956;
+	padding: 3px;
+}
+
+/*******************************************************************************
+Toggle button
+*******************************************************************************/
+
+.toggle > .toggle_content {
+	display: none;
+}
+
+.toggle > a {
+	display: inline-block;
+	margin: 5px 0px;
+	padding: 5px 0px 5px 10px;
+	background-color: #333;
+	color: #fff !important;
+	text-shadow: 0px 1px 0px #222 !important;
+	text-decoration: none !important;
+	border-radius: 5px;
+}
+
+.toggle > a em {
+	color: #bbb;
+	
+}
+
+.toggle > a span {
+	padding: 5px 10px 5px 10px;
+	background-color: #222;
+	border-radius: 0px 5px 5px 0px;
+}
+
+/* Toggle content */
+
+.toggle .toggle_content > ul {
+	list-style-type: square;
+	margin-left: 15px;
+}
+
+.toggle .toggle_content > ul > li {
+	padding: 3px 0px;
+}
+
+.toggle .toggle_content > ul a {
+	margin-left: 10px;
+	display: none;
+	font-size: 11px;
+	text-transform: uppercase;
+	color: #abbccc;
+	background-color: #dfe6ed;
+	border-radius: 3px;
+	padding: 1px;
+	border: 1px solid #d5dde6;
+}
+
+.toggle .toggle_content > ul > li:hover a {
+	display: inline;
+}
+
+/*******************************************************************************
+Survey results (general)
+*******************************************************************************/
+
+#survey_results {
+	margin-left: 15px;
+}
+
+/*******************************************************************************
+Survey Submission
+*******************************************************************************/
+
+#survey_submission {
+	margin-left: 15px;
+}
+
+/*******************************************************************************
+Survey Submissions
+*******************************************************************************/
+
+/* Filter */
+
+#vwm_survey_submissions_search .input {
+	margin: 5px 0px;
+}
+
+#vwm_survey_submissions_search .datepicker {
+	width: auto;
+	display: inline;
+}
+
+/* Table */
+
+span.yes {
+	color: green;
+	font-weight: bold;
+}
+
+span.no {
+	color: red;
+	font-weight: bold;
+}

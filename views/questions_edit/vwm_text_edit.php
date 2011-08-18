@@ -1,0 +1,2 @@
+<label>Minimum Length: <input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][min_length]" value="<?php echo isset($options['min_length']) ? $options['min_length'] : NULL; ?>" /></label>
+<label>Maximum Length: <input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][max_length]" value="<?php echo isset($options['max_length']) ? $options['max_length'] : NULL; ?>" /></label>
