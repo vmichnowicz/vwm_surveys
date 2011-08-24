@@ -15,7 +15,7 @@
 $lang = array(
 	// Module info
 	'vwm_surveys_module_name'				=> 'VWM Surveys',
-	'vwm_surveys_module_description'		=> 'Survey Primate who?',
+	'vwm_surveys_module_description'		=> 'Survey module with multiple question types.',
 	
 	// Module control panel
 	'vwm_surveys_add_survey'				=> 'Add Survey',
