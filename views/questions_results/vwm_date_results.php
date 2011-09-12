@@ -2,8 +2,8 @@
 	<div class="toggle">
 		<div class="toggle_content">
 			<ul>
-				<?php foreach ($results['dates'] as $date): ?>
-					<li><?php echo $date; ?></li>
+				<?php foreach ($results['dates'] as $submission_id => $date): ?>
+					<li><?php echo $date; ?> <a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP .'method=survey_submission' . AMP . 'submission_id=' . $submission_id; ?>" class="view_survey">View Individual Survey (<?php echo $submission_id; ?>)</a></li>
 				<?php endforeach; ?>
 			</ul>
 		</div>

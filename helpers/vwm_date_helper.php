@@ -4,9 +4,9 @@
  * Validate date input
  *
  * @param int				Question ID
- * @param text				User-provided question data (in this case it is the text from the text input)
+ * @param text				User-provided question data (in this case it is the date from the text input)
  * @param array				Question options
- * @return type
+ * @return array
  */
 function vwm_date_validate($id, $input, $options)
 {	
@@ -108,7 +108,16 @@ function vwm_date_validate($id, $input, $options)
  */
 function vwm_date_compile_results($survey_id, $submission_id, $question_options, $question_data, $compiled_data)
 {
-	$compiled_data['dates'][] = $question_data['date'];
+	/**
+	 * If this submission has date data set
+	 * 
+	 * The only reason this should not be the case is if someone submits a
+	 * survey and then an admin adds a date question to the survey - bad admin!
+	 */
+	if ( isset( $question_data['date'] ) )
+	{
+		$compiled_data['dates'][ $submission_id ] = $question_data['date'];
+	}
 
 	return $compiled_data;
 }
