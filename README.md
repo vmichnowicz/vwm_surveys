@@ -16,7 +16,7 @@ I provide the following support options:
 
 * [GitHub Wiki](https://github.com/vmichnowicz/vwm_surveys/wiki)
 * [GitHub Issue Tracker](https://github.com/vmichnowicz/vwm_surveys/issues)
-* Devot:ee (coming soon)
+* [Devot:ee](http://devot-ee.com/add-ons/vwm-surveys)
 * [Personal contact form](http://www.vmichnowicz.com/contact)
 * [Twitter](http://twitter.com/vmichnowicz)
 
