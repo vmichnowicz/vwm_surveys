@@ -403,11 +403,14 @@ class Vwm_surveys {
 							'xid' => $this->refresh_xid()
 						);
 
-						$this->EE->output->send_ajax_response($data, TRUE);
+						$this->EE->output->send_ajax_response($data);
 					}
 					// No AJAX
 					else
 					{
+						// Where is the user being directed after completing this survey
+						$completion_redirect = $redirect ? $redirect : $this->EE->config->item('site_url');
+								
 						$data = array(
 							'redirect' => $completion_redirect,
 							'link' => array($completion_redirect, 'Continue'),
