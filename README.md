@@ -18,10 +18,10 @@ I provide the following support options:
 * [GitHub Issue Tracker](https://github.com/vmichnowicz/vwm_surveys/issues)
 * Devot:ee (coming soon)
 * [Personal contact form](http://www.vmichnowicz.com/contact)
+* [Twitter](http://twitter.com/vmichnowicz)
 
 ## Coming Soon-ish
 
 * More question types!
-* Survey "save" button to save survey progress
 * Unique checkbox, radio, and radio matrix keys
 * Messages moved into language files
