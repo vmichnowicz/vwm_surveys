@@ -49,10 +49,6 @@ class Vwm_surveys_upd {
 		);
 
 		$this->EE->db->insert('modules', $data);
-
-		// Add save_survey action to exp_actions
-		$save_survey = array('class' => 'Vwm_surveys', 'method' => 'save_survey');
-		$this->EE->db->insert('actions', $save_survey);
 		
 		// Add submit_survey action to exp_actions
 		$submit_survey = array('class' => 'Vwm_surveys', 'method' => 'submit_survey');

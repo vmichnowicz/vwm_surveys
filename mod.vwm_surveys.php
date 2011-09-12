@@ -269,6 +269,7 @@ class Vwm_surveys {
 				'ACT' => $this->EE->functions->fetch_action_id('Vwm_surveys', 'submit_survey'),
 				'RET' => $this->EE->TMPL->fetch_param('return') ? $this->EE->TMPL->fetch_param('return') : NULL,
 				'URI' => $this->EE->uri->uri_string ? $this->EE->uri->uri_string : 'index',
+				'save_survey' => $this->EE->functions->fetch_action_id('Vwm_surveys', 'save_survey'),
 				'survey_id' => $survey_id,
 				'current_page' => $current_page,
 				'hash' => $hash,
@@ -302,6 +303,9 @@ class Vwm_surveys {
 
 		// The submitted data (grouped by question ID)
 		$submitted_data = $this->EE->input->post('vwm_surveys_questions');
+		
+		// Is the user attempting to save this survey?
+		$save_survey = $this->EE->input->post('save') ? TRUE : FALSE;
 
 		$data = array();
 		$errors = array();
@@ -386,14 +390,14 @@ class Vwm_surveys {
 				// Generate a redirect URL
 				$hash_redirect_url = $this->hash_redirect_url($survey_id, $hash, $current_page);
 
-				// If there were errors
-				if ($errors)
+				// If the user just wants to save the survey, return the hash redirect url
+				if ( $save_survey == TRUE )
 				{
 					// If this was an AJAX request
 					if ($this->EE->input->is_ajax_request())
 					{
 						$data = array(
-							'errors' => $errors,
+							'saved' => TRUE,
 							'hash' => $hash,
 							'hash_redirect' => $hash_redirect_url,
 							'xid' => $this->refresh_xid()
@@ -404,60 +408,93 @@ class Vwm_surveys {
 					// No AJAX
 					else
 					{
-						// Get an HTML unordered list of all our errors grouped by question
-						$error_list = $this->error_list($errors, $survey['pages'][$current_page]['questions']);
-
 						$data = array(
-							'content' => $error_list,
-							'hash_redirect' => $hash_redirect_url,
-							'heading' => 'Survey Errors',
-							'link' => array( $hash_redirect_url, 'Return to previous page' ),
-							'redirect' => NULL,
-							'title' => 'Survey Errors'
+							'redirect' => $completion_redirect,
+							'link' => array($completion_redirect, 'Continue'),
+							'title' => 'Survey Saved',
+							'heading' => 'Survey Saved',
+							'content' => 'This survey has been successfully saved.'
 						);
 
-						$this->EE->output->show_message($data, FALSE);
+						$this->EE->output->show_message($data);
 					}
 				}
-				// If there were no errors
+				// If user is attempting a survey submission
 				else
 				{
-					// If this was an AJAX request
-					if ($this->EE->input->is_ajax_request())
+					// If there were errors
+					if ($errors)
 					{
-						$data = array(
-							'complete' => $complete,
-							'hash' => $hash,
-							'hash_redirect' => $hash_redirect_url,
-							'redirect' => $redirect
-						);
-
-						$this->EE->output->send_ajax_response($data);
-					}
-					// No AJAX
-					else
-					{
-						// There are no errors, however, this survey is not complete
-						if ( ! $complete)
+						// If this was an AJAX request
+						if ($this->EE->input->is_ajax_request())
 						{
-							// Redirect to next page
-							$this->EE->functions->redirect($hash_redirect_url);
-						}
-						// There are no errors and this survey is complete, GREAT SUCCESS!
-						else
-						{
-							// Where is the user being directed after completing this survey
-							$completion_redirect = $redirect ? $redirect : $this->EE->config->item('site_url');
-
 							$data = array(
-								'redirect' => $completion_redirect,
-								'link' => array($completion_redirect, 'Continue'),
-								'title' => 'Survey Complete',
-								'heading' => 'Survey Complete',
-								'content' => 'This survey has been successfully completed.'
+								'errors' => $errors,
+								'hash' => $hash,
+								'hash_redirect' => $hash_redirect_url,
+								'xid' => $this->refresh_xid()
 							);
 
-							$this->EE->output->show_message($data);
+							$this->EE->output->send_ajax_response($data, TRUE);
+						}
+						// No AJAX
+						else
+						{
+							// Get an HTML unordered list of all our errors grouped by question
+							$error_list = $this->error_list($errors, $survey['pages'][$current_page]['questions']);
+
+							$data = array(
+								'content' => $error_list,
+								'hash_redirect' => $hash_redirect_url,
+								'heading' => 'Survey Errors',
+								'link' => array( $hash_redirect_url, 'Return to previous page' ),
+								'redirect' => NULL,
+								'title' => 'Survey Errors'
+							);
+
+							$this->EE->output->show_message($data, FALSE);
+						}
+					}
+					// If there were no errors
+					else
+					{
+						// If this was an AJAX request
+						if ($this->EE->input->is_ajax_request())
+						{
+							$data = array(
+								'complete' => $complete,
+								'hash' => $hash,
+								'hash_redirect' => $hash_redirect_url,
+								'redirect' => $redirect
+							);
+
+							$this->EE->output->send_ajax_response($data);
+						}
+						// No AJAX
+						else
+						{
+							// There are no errors, however, this survey is not complete
+							if ( ! $complete)
+							{
+								// Redirect to next page
+								$this->EE->functions->redirect($hash_redirect_url);
+							}
+							// There are no errors and this survey is complete, GREAT SUCCESS!
+							else
+							{
+								// Where is the user being directed after completing this survey
+								$completion_redirect = $redirect ? $redirect : $this->EE->config->item('site_url');
+
+								$data = array(
+									'redirect' => $completion_redirect,
+									'link' => array($completion_redirect, 'Continue'),
+									'title' => 'Survey Complete',
+									'heading' => 'Survey Complete',
+									'content' => 'This survey has been successfully completed.'
+								);
+
+								$this->EE->output->show_message($data);
+							}
 						}
 					}
 				}
@@ -471,17 +508,6 @@ class Vwm_surveys {
 		{
 			show_error('This survey does not exist.');
 		}
-	}
-
-	/**
-	 * Save survey progress
-	 *
-	 * @access public
-	 * @return void
-	 */
-	public function save_survey()
-	{
-		return;
 	}
 
 	/**
