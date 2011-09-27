@@ -34,7 +34,7 @@ function shuffle_assoc($array)
  */
 function legit_encode($string)
 {
-	return nl2br(htmlentities($string, ENT_QUOTES, 'UTF-8'), TRUE);
+	return nl2br(htmlentities($string, ENT_QUOTES, 'UTF-8'));
 }
 
 // EOF
