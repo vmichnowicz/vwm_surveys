@@ -252,6 +252,13 @@ class Vwm_surveys_mcp {
 		// Add breadcrumb
 		$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
 
+		// jQuery UI
+		$this->EE->cp->add_js_script(
+			array('ui' => array(
+				'core', 'datepicker'
+			)
+		));
+
 		// Load JS for all question types
 		foreach ($this->question_types() as $slug => $name)
 		{
