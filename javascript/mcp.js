@@ -178,3 +178,30 @@ $('.toggle > a').click(function() {
 $('.datepicker').datepicker({
 	altFormat: $.datepicker.W3C
 });
+
+/**
+ * Toggle select groups multiselect
+ */
+(function() {
+	var radios = $('input[name="vwm_surveys_allowed_groups"]');
+	var multiselect = $('select[name^="vwm_surveys_select_allowed_groups"]');
+
+	// On page load if group radio input is equal to "SELECT"
+	if ( $(radios).filter(':checked').val() === 'SELECT' ) {
+		$(multiselect).show();
+	}
+	// On page load if the group radio input is equal to either "A" or "NULL"
+	else {
+		$(multiselect).hide();
+	}
+
+	// Whenever the group radio input changes
+	$(radios).change(function() {
+		if ( $(this).val() === 'SELECT' ) {
+			$(multiselect).show();
+		}
+		else {
+			$(multiselect).hide();
+		}
+	});
+})();

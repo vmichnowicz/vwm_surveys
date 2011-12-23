@@ -7,6 +7,8 @@
  * @param text				User-provided question data (in this case it is the date from the text input)
  * @param array				Question options
  * @return array
+ * 
+ * @todo Use PHP DateTime object instead of mktime()
  */
 function vwm_date_validate($id, $input, $options)
 {	
@@ -29,7 +31,7 @@ function vwm_date_validate($id, $input, $options)
 	// We have at least three segments
 	else
 	{
-		$date = $month = $year = NULL;
+		$day = $month = $year = NULL;
 
 		switch ($format)
 		{

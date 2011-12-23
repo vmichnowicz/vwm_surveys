@@ -281,7 +281,10 @@ class Vwm_surveys_mcp {
 	/**
 	 * Update a survey CP page
 	 * 
-	 * This page gets POSTed to and then updates our survey
+	 * This page gets POSTed to and then updates our survey. For allowed groups
+	 * we first want to see if the user is attempting to make the survey group
+	 * setting "A" (all) or "NULL" (none). If the group setting is not either of
+	 * those values then we will use the input from the select members input.
 	 * 
 	 * @access public
 	 * @return void
@@ -290,7 +293,7 @@ class Vwm_surveys_mcp {
 	{
 		$id = $this->EE->input->post('vwm_surveys_id');
 		$title = trim($this->EE->input->post('vwm_surveys_title'));
-		$allowed_groups = $this->EE->input->post('vwm_surveys_allowed_groups');
+		$allowed_groups = in_array( $this->EE->input->post('vwm_surveys_allowed_groups'), array('A', 'NULL') ) ? $this->EE->input->post('vwm_surveys_allowed_groups') : $this->EE->input->post('vwm_surveys_select_allowed_groups');
 		$pages = $this->EE->input->post('vwm_surveys_pages');
 
 		// If we have a title and page data

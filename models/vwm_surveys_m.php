@@ -206,7 +206,7 @@ class Vwm_surveys_m extends CI_Model {
 			$data = array(
 				'id' => $survey_id,
 				'title' => $row->title,
-				'allowed_groups' => explode(',', $row->allowed_groups),
+				'allowed_groups' => $this->parse_groups($row->allowed_groups),
 				'hash' => $row->hash,
 				'created' =>(int)$row->created,
 				'updated' => (int)$row->updated
