@@ -32,6 +32,9 @@ class Vwm_surveys {
 		// Make a local reference to the ExpressionEngine super object
 		$this->EE =& get_instance();
 
+		// Make damn sure module path is defined
+		$this->EE->load->add_package_path(PATH_THIRD . 'vwm_surveys/');
+
 		// Load lang, models, config, and hepler
 		$this->EE->lang->loadfile('vwm_surveys');
 		$this->EE->config->load('vwm_surveys');

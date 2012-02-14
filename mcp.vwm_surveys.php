@@ -30,6 +30,9 @@ class Vwm_surveys_mcp {
 	{
 		// Make a local reference to the ExpressionEngine super object
 		$this->EE =& get_instance();
+
+		// Make damn sure module path is defined
+		$this->EE->load->add_package_path(PATH_THIRD . 'vwm_surveys/');
 		
 		// Load models
 		$this->EE->load->model(array('vwm_surveys_m', 'vwm_surveys_submissions_m', 'vwm_surveys_results_m'));
@@ -322,7 +325,7 @@ class Vwm_surveys_mcp {
 								'title' => trim($question['title']),
 								'type' => $question['type'],
 								'custom_order' => (int)$question['custom_order'],
-								'options' => json_encode($question['options'])
+								'options' => isset($question['options']) ? json_encode($question['options']) : NULL
 							);
 
 							$this->EE->vwm_surveys_m->update_question($question['id'], $data);
@@ -333,7 +336,7 @@ class Vwm_surveys_mcp {
 							$data = array(
 								'title' => trim($question['title']),
 								'type' => $question['type'],
-								'options' => json_encode($question['options']),
+								'options' => isset($question['options']) ? json_encode($question['options']) : NULL,
 								'custom_order' => (int)$question['custom_order'],
 								'survey_id' => $id,
 								'page' => $page_number
