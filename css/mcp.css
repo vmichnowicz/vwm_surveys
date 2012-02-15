@@ -37,6 +37,7 @@ Edit survey
 	position: relative;
 	background-color: #b2bec0;
 	border: 1px solid #999;
+	box-shadow: 1px 1px 0px #d2dee0 inset, -1px -1px 0px #d2dee0 inset;
 	border-radius: 5px;
 	padding: 10px;
 	margin: 15px 0px;

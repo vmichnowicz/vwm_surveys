@@ -30,6 +30,9 @@ class Vwm_surveys_mcp {
 	{
 		// Make a local reference to the ExpressionEngine super object
 		$this->EE =& get_instance();
+
+		// Make damn sure module path is defined
+		$this->EE->load->add_package_path(PATH_THIRD . 'vwm_surveys/');
 		
 		// Load models
 		$this->EE->load->model(array('vwm_surveys_m', 'vwm_surveys_submissions_m', 'vwm_surveys_results_m'));
@@ -252,6 +255,13 @@ class Vwm_surveys_mcp {
 		// Add breadcrumb
 		$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
 
+		// jQuery UI
+		$this->EE->cp->add_js_script(
+			array('ui' => array(
+				'core', 'datepicker'
+			)
+		));
+
 		// Load JS for all question types
 		foreach ($this->question_types() as $slug => $name)
 		{
@@ -274,7 +284,10 @@ class Vwm_surveys_mcp {
 	/**
 	 * Update a survey CP page
 	 * 
-	 * This page gets POSTed to and then updates our survey
+	 * This page gets POSTed to and then updates our survey. For allowed groups
+	 * we first want to see if the user is attempting to make the survey group
+	 * setting "A" (all) or "NULL" (none). If the group setting is not either of
+	 * those values then we will use the input from the select members input.
 	 * 
 	 * @access public
 	 * @return void
@@ -283,7 +296,7 @@ class Vwm_surveys_mcp {
 	{
 		$id = $this->EE->input->post('vwm_surveys_id');
 		$title = trim($this->EE->input->post('vwm_surveys_title'));
-		$allowed_groups = $this->EE->input->post('vwm_surveys_allowed_groups');
+		$allowed_groups = in_array( $this->EE->input->post('vwm_surveys_allowed_groups'), array('A', 'NULL') ) ? $this->EE->input->post('vwm_surveys_allowed_groups') : $this->EE->input->post('vwm_surveys_select_allowed_groups');
 		$pages = $this->EE->input->post('vwm_surveys_pages');
 
 		// If we have a title and page data
@@ -312,7 +325,7 @@ class Vwm_surveys_mcp {
 								'title' => trim($question['title']),
 								'type' => $question['type'],
 								'custom_order' => (int)$question['custom_order'],
-								'options' => json_encode($question['options'])
+								'options' => isset($question['options']) ? json_encode($question['options']) : NULL
 							);
 
 							$this->EE->vwm_surveys_m->update_question($question['id'], $data);
@@ -323,7 +336,7 @@ class Vwm_surveys_mcp {
 							$data = array(
 								'title' => trim($question['title']),
 								'type' => $question['type'],
-								'options' => json_encode($question['options']),
+								'options' => isset($question['options']) ? json_encode($question['options']) : NULL,
 								'custom_order' => (int)$question['custom_order'],
 								'survey_id' => $id,
 								'page' => $page_number

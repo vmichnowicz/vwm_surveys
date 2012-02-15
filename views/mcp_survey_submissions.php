@@ -61,7 +61,7 @@
 		<legend>Sort Order</legend>
 
 		<div class="input">
-			<label for="order_by">Ordey by:</label>
+			<label for="order_by">Order by:</label>
 			<select name="order_by" id="order_by">
 				<option value="id" <?php echo $order_by == 'id' ? 'selected="selected"' : NULL; ?>>ID</option>
 				<option value="member_id" <?php echo $order_by == 'member_id' ? 'selected="selected"' : NULL; ?>>Member ID</option>

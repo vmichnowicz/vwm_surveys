@@ -15,83 +15,68 @@ function vwm_date_validate($id, $input, $options)
 	$later_than = $options['later_than'] != '' ? new DateTime( $options['later_than'] ) : NULL;
 	$earlier_than = $options['earlier_than'] != '' ? new DateTime( $options['earlier_than'] ) : NULL;
 
+	// Determine format conversion
+	switch ($format)
+	{
+		// Lots of people
+		case 'DD/MM/YYYY':
+			$string_format = 'd#m#Y';
+			$display_format = 'd-n-Y';
+			break;
+		// 'merica!
+		case 'MM/DD/YYYY':
+			$string_format = 'm#d#Y';
+			$display_format = 'n-d-Y';
+			break;
+		// Default to YYYY/MM/DD format cuz it is the most logical
+		default:
+			$string_format = 'Y#m#d';
+			$display_format = 'Y-n-d';
+			break;
+	}
+
 	// The only user input is from the sole date input
 	$data['date'] = trim($input);
-	
-	// Split date string by slashes, dots, & hyphens
-	$date_array = preg_split('/[.,\/ -]/', $data['date']);
-	
-	// We must have three segments for a valid date
-	if ( count($date_array) != 3 )
+
+	// Attempt to create date object from user provided input
+	try
+	{
+		$date_obj = DateTime::createFromFormat($string_format, $data['date']);
+	}
+	catch (Exception $e)
 	{
 		$data['errors'][] = 'Invalid date provided.';
 	}
-	// We have at least three segments
-	else
+
+
+	// If later_than date is set
+	if ($later_than)
 	{
-		$date = $month = $year = NULL;
-
-		switch ($format)
+		// If date is less than later_than date
+		if( $date_obj < $later_than )
 		{
-			// Lots of people
-			case 'DD/MM/YYYY':
-				$year = $date_array[2];
-				$month = $date_array[1];
-				$day = $date_array[0];
-				$format_conversion = 'j-n-Y';
-				break;
-			// 'merica!
-			case 'MM/DD/YYYY':
-				$year = $date_array[2];
-				$month = $date_array[0];
-				$day = $date_array[1];
-				$format_conversion = 'n-j-Y';
-				break;
-			// Default to YYYY/MM/DD format cuz it is the most logical
-			default:
-				$year = $date_array[0];
-				$month = $date_array[1];
-				$day = $date_array[2];
-				$format_conversion = 'Y-j-n';
-				break;
-		}
-
-		// If this is a valid date
-		if ( $date_timestamp = mktime(0, 0, 0, $month, $day, $year) )
-		{
-			// If later_than date is set
-			if ($later_than)
-			{
-				// If date is less than later_than date
-				if( $date_timestamp < $later_than->getTimestamp() )
-				{
-					$data['errors'][] = 'Date must be later than ' . $later_than->format($format_conversion) . '.';
-				}
-			}
-			
-			// If earlier_than date is set
-			if ($earlier_than)
-			{
-				// If date is less than later_than date
-				if( $date_timestamp > $earlier_than->getTimestamp() )
-				{
-					$data['errors'][] = 'Date must be earlier than ' . $earlier_than->format($format_conversion) . '.';
-				}
-			}
-			
-			// If no error were encountered
-			if ( ! $data['errors'] )
-			{
-				// Store date in YYYY/MM/DD format
-				$data['date'] = $year . '-' . $month . '-' . $day;
-			}
-		}
-		// If this is not a valid date
-		else
-		{
-			$data['errors'][] = 'Invalid date provided.';
+			$data['errors'][] = 'Date must be later than ' . $later_than->format($display_format) . '.';
 		}
 	}
+
+	// If earlier_than date is set
+	if ($earlier_than)
+	{
+		// If date is less than later_than date
+		if( $date_obj > $earlier_than )
+		{
+			$data['errors'][] = 'Date must be earlier than ' . $earlier_than->format($display_format) . '.';
+		}
+	}
+
+	// If no error were encountered
+	if ( ! $data['errors'] )
+	{
+		// Store date in YYYY-MM-DD format
+		$data['date'] = $year . '-' . $month . '-' . $day;
+	}
+
+	
 
 	return $data;
 }
