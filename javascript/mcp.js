@@ -25,8 +25,7 @@ $('#vwm_surveys_pages .add_question a').live('click', function() {
 	var type = $(this).closest('div').find('select').val();
 
 	// Add a new question
-	$.get('index.php', {
-			D: 'cp',
+	$.get(EE.BASE, {
 			C: 'addons_modules',
 			M: 'show_module_cp',
 			module: 'vwm_surveys',
@@ -60,8 +59,7 @@ $('#vwm_surveys_pages .delete_question a').live('click', function() {
 	var hidden_inputs = $(question).find('.hidden_inputs');
 
 	// Delete the question
-	$.get('index.php', {
-			D: 'cp',
+	$.get(EE.BASE, {
 			C: 'addons_modules',
 			M: 'show_module_cp',
 			module: 'vwm_surveys',
@@ -89,8 +87,7 @@ $('.move_question a').live('click', function() {
 	var hidden_inputs = $(question).find('.hidden_inputs');
 	var move = $(this).attr('class');
 
-	$.get('index.php', {
-			D: 'cp',
+	$.get(EE.BASE, {
 			C: 'addons_modules',
 			M: 'show_module_cp',
 			module: 'vwm_surveys',
@@ -120,8 +117,7 @@ $('.delete_page a').live('click', function() {
 	var page_number = $(page).attr('id').substring(17);
 	var survey_id = $(this).closest('form').find('input[name="vwm_surveys_id"]').val();
 
-	$.get('index.php', {
-			D: 'cp',
+	$.get(EE.BASE, {
 			C: 'addons_modules',
 			M: 'show_module_cp',
 			module: 'vwm_surveys',
@@ -144,8 +140,7 @@ $('.add_page a').live('click', function() {
 	var title = $(this).siblings('input').val();
 
 	// Add a new page
-	$.get('index.php', {
-			D: 'cp',
+	$.get(EE.BASE, {
 			C: 'addons_modules',
 			M: 'show_module_cp',
 			module: 'vwm_surveys',
@@ -156,6 +151,18 @@ $('.add_page a').live('click', function() {
 			var page = $(data).find('#vwm_surveys_pages li:last');
 			$(pages).append(page)
 	});	
+});
+
+/**
+ * Whenever a user registers a kek up event on the add page text input we want
+ * to see if it was the "Enter" key. If it was then we want to trigger a click
+ * event for the "Add Page" link.
+ */
+$('form.edit_survey .add_page :input').live('keyup', function(e) {
+	// If the use pressed the "enter" key
+	if (e.which == 13) {
+		$(this).siblings('a').trigger('click');
+	}
 });
 
 /**
@@ -180,6 +187,44 @@ $('.toggle > a').click(function() {
 /**
  * jQuery UI datepicker
  */
-$('#vwm_survey_submissions_search .datepicker').datepicker({
+$('.datepicker').datepicker({
 	altFormat: $.datepicker.W3C
+});
+
+/**
+ * Toggle select groups multiselect
+ */
+(function() {
+	var radios = $('input[name="vwm_surveys_allowed_groups"]');
+	var multiselect = $('select[name^="vwm_surveys_select_allowed_groups"]');
+
+	// On page load if group radio input is equal to "SELECT"
+	if ( $(radios).filter(':checked').val() === 'SELECT' ) {
+		$(multiselect).show();
+	}
+	// On page load if the group radio input is equal to either "A" or "NULL"
+	else {
+		$(multiselect).hide();
+	}
+
+	// Whenever the group radio input changes
+	$(radios).change(function() {
+		if ( $(this).val() === 'SELECT' ) {
+			$(multiselect).show();
+		}
+		else {
+			$(multiselect).hide();
+		}
+	});
+})();
+
+/**
+ * Whenever our survey edit form is submitted check to see if the current
+ * element with focus has the class "no_submit". If it does we will not submit
+ * the form.
+ */
+$('form.edit_survey').live('submit', function(e) {
+	if ( $(':focus').hasClass('no_submit') ) {
+		e.preventDefault();
+	}
 });

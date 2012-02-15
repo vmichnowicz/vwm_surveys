@@ -3,13 +3,15 @@
 // Available question types
 $config['vwm_surveys_question_types'] = array(
 	'checkboxes' => 'Checkboxes',
-	'radio_matrix' => 'Radio Matrix',
-	'radios' => 'Radios',
-	'text' => 'Text',
-	'textarea' => 'Textarea',
 	'date' => 'Date',
-//	'time' => 'Time',
 //	'datetime' => 'Datetime'
+	'radios' => 'Radios',
+	'radio_matrix' => 'Radio Matrix',
+//	'rating' => 'Rating',
+//	'rating_matrix' => 'Rating Matrix',
+	'text' => 'Text',
+	'textarea' => 'Textarea'
+//	'time' => 'Time'
 );
 
 // Date formats for vwm_date question type

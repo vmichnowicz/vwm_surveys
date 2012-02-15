@@ -2,7 +2,7 @@
 	<p class="notice">WARNING: This survey already has some submissions. Editing this survey may result in survey errors and / or skewed survey results.</p>
 <?php endif; ?>
 
-<?php echo form_open($action_url, '', array('redirect_to' => $this->cp->get_safe_refresh()) ) ?>
+<?php echo form_open($action_url, array('class' => 'edit_survey'), array('redirect_to' => $this->cp->get_safe_refresh()) ) ?>
 	<fieldset>
 		<legend>Survey Details</legend>
 		<label>Title: <input type="text" name="vwm_surveys_title" value="<?php echo $title; ?>" /></label>
@@ -12,11 +12,21 @@
 
 	<fieldset>
 		<legend>Allowed Groups</legend>
-		<select multiple="multiple" size="<?php echo count($member_groups); ?>" name="vwm_surveys_allowed_groups[]">
-			<?php foreach ($member_groups as $member_group_id => $member_group_title): ?>
-				<option value="<?php echo $member_group_id; ?>" <?php echo in_array($member_group_id, $allowed_groups) ? 'selected="selected"' : NULL;?>><?php echo $member_group_title; ?></option>
-			<?php endforeach; ?>
-		</select>
+		<label>
+			<input type="radio" name="vwm_surveys_allowed_groups" value="A" <?php echo $allowed_groups === 'A' ? 'checked="checked"' : NULL; ?> />
+			All
+		</label>
+		<label>
+			<input type="radio" name="vwm_surveys_allowed_groups" value="NULL" <?php echo $allowed_groups === NULL ? 'checked="checked"' : NULL; ?> />
+			None
+		</label>
+		<label>
+			<input type="radio" name="vwm_surveys_allowed_groups" value="SELECT" <?php echo is_array($allowed_groups) ? 'checked="checked"' : NULL; ?> />
+			Select
+		</label>
+		<div>
+			<?php echo form_multiselect('vwm_surveys_select_allowed_groups[]', $member_groups, $allowed_groups); ?>
+		</div>
 	</fieldset>
 
 	<fieldset>
@@ -70,7 +80,7 @@
 		<div class="add_page">
 			<label>
 				Add a page to this survey:
-				<input type="text" />
+				<input type="text" class="no_submit" />
 				
 				<a href="javascript:void(0);" class="submit">Add Page</a>
 			</label>

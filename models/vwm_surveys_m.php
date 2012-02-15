@@ -17,6 +17,80 @@
  */
 class Vwm_surveys_m extends CI_Model {
 
+	protected $EE;
+
+	/**
+	 * Model construct
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function __construct()
+	{
+		// Make a local reference to the ExpressionEngine super object
+		$this->EE =& get_instance();
+	}
+
+	/**
+	 * Parse group data
+	 *
+	 * Group data comes in three different formats: "A", NULL, or something like
+	 * "1,4,6".
+	 *
+	 * @access public
+	 * @param mixed			Group data
+	 * @param string		Delimiter (either a comma or a pipe)
+	 * @return mixed
+	 */
+	protected function parse_groups($data, $delimiter = ',')
+	{
+		// If we are dealing with an array (from POST data on the MCP page)
+		if ( is_array($data) )
+		{
+			// If this is an empty array
+			if ( count($data) === 0 )
+			{
+				return NULL;
+			}
+
+			// Loop through array and make sure each element is an integer
+			foreach($data as &$element) { intval($element); }
+
+			// Sort array in ascending order
+			asort($data);
+
+			// Unique array
+			$data = array_unique($data, SORT_NUMERIC);
+
+			return implode($delimiter, $data);
+		}
+		// All
+		elseif ( strtoupper($data) === 'A' || strtoupper($data) === 'ALL')
+		{
+			return 'A';
+		}
+		// None
+		elseif ($data === NULL || $data === FALSE || strtoupper($data) === 'NULL' )
+		{
+			return NULL;
+		}
+		// Select groups
+		else
+		{
+			// Explode into array using delimiter
+			$array = explode($delimiter, $data);
+
+			// Loop through array and make sure each element is an integer
+			foreach($array as &$element) { intval($element); }
+
+			// Sort array in ascending order
+			asort($array);
+
+			// Return unique array
+			return array_unique($array, SORT_NUMERIC);
+		}
+	}
+
 	/**
 	 * Get all member groups
 	 *
@@ -132,7 +206,7 @@ class Vwm_surveys_m extends CI_Model {
 			$data = array(
 				'id' => $survey_id,
 				'title' => $row->title,
-				'allowed_groups' => explode(',', $row->allowed_groups),
+				'allowed_groups' => $this->parse_groups($row->allowed_groups),
 				'hash' => $row->hash,
 				'created' =>(int)$row->created,
 				'updated' => (int)$row->updated
@@ -153,16 +227,10 @@ class Vwm_surveys_m extends CI_Model {
 	 */
 	public function update_survey($id, $title, $allowed_groups)
 	{
-		// Make sure all groups are integers
-		foreach ($allowed_groups as &$group)
-		{
-			$group = (int)$group;
-		}
-
 		$data = array(
 			'title' => $title,
-			'allowed_groups' => implode(',', $allowed_groups),
-			'updated' => time()
+			'allowed_groups' => $this->parse_groups($allowed_groups),
+			'updated' => $this->EE->localize->now
 		);
 
 		$this->db

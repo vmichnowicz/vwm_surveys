@@ -21,10 +21,10 @@
 
 <div class="new_checkbox">
 	<label>New Checkbox:
-		<input type="text" name="" value="" />
+		<input type="text" name="" value="" class="no_submit" />
 	</label>
 
-	<select name="">
+	<select name="" class="no_submit">
 		<option value="defined">Defined</option>
 		<option value="other">Other</option>
 	</select>
