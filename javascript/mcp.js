@@ -154,6 +154,18 @@ $('.add_page a').live('click', function() {
 });
 
 /**
+ * Whenever a user registers a kek up event on the add page text input we want
+ * to see if it was the "Enter" key. If it was then we want to trigger a click
+ * event for the "Add Page" link.
+ */
+$('form.edit_survey .add_page :input').live('keyup', function(e) {
+	// If the use pressed the "enter" key
+	if (e.which == 13) {
+		$(this).siblings('a').trigger('click');
+	}
+});
+
+/**
  * Toggle
  */
 $('.toggle > a').click(function() {
@@ -205,3 +217,14 @@ $('.datepicker').datepicker({
 		}
 	});
 })();
+
+/**
+ * Whenever our survey edit form is submitted check to see if the current
+ * element with focus has the class "no_submit". If it does we will not submit
+ * the form.
+ */
+$('form.edit_survey').live('submit', function(e) {
+	if ( $(':focus').hasClass('no_submit') ) {
+		e.preventDefault();
+	}
+});

@@ -195,7 +195,7 @@ class Vwm_surveys_upd {
 			// Make question options NULLable
 			$this->EE->db->query("
 				ALTER TABLE  `{$prefix}vwm_surveys_questions`
-				MODIFY `options` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8 NULL DEFAULT NULL
+				MODIFY `options` MEDIUMTEXT CHARACTER SET utf8 NULL DEFAULT NULL
 			");
 		}
 

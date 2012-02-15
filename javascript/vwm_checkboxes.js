@@ -45,3 +45,14 @@ $('.vwm_checkboxes .all_checkboxes').sortable({
 	axis: 'y',
 	containment: 'parent'
 });
+
+/**
+ * On keyup inside new checkbox input
+ */
+$('.vwm_checkboxes .new_checkbox :input').live('keyup', function(e) {
+	// If the use pressed the "enter" key
+	if (e.which == 13) {
+		// Trigger a click event on the "Add Checkbox" button
+		$(this).closest('div').find('input[type="button"]').trigger('click');
+	}
+});

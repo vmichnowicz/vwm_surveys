@@ -2,7 +2,7 @@
 	<p class="notice">WARNING: This survey already has some submissions. Editing this survey may result in survey errors and / or skewed survey results.</p>
 <?php endif; ?>
 
-<?php echo form_open($action_url, '', array('redirect_to' => $this->cp->get_safe_refresh()) ) ?>
+<?php echo form_open($action_url, array('class' => 'edit_survey'), array('redirect_to' => $this->cp->get_safe_refresh()) ) ?>
 	<fieldset>
 		<legend>Survey Details</legend>
 		<label>Title: <input type="text" name="vwm_surveys_title" value="<?php echo $title; ?>" /></label>
@@ -80,7 +80,7 @@
 		<div class="add_page">
 			<label>
 				Add a page to this survey:
-				<input type="text" />
+				<input type="text" class="no_submit" />
 				
 				<a href="javascript:void(0);" class="submit">Add Page</a>
 			</label>
