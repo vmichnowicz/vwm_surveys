@@ -18,7 +18,7 @@
 class Vwm_surveys_upd {
 
 	private $EE;
-	public $version = '0.2';
+	public $version = '0.3.1';
 	
 	/**
 	 * Constructor
@@ -79,7 +79,7 @@ class Vwm_surveys_upd {
 				`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 				`hash` varchar(32) NOT NULL,
 				`title` varchar(128) NOT NULL,
-				`allowed_groups` varchar(128) NOT NULL,
+				`allowed_groups` varchar(128) DEFAULT NULL,
 				`created` int(10) unsigned NOT NULL,
 				`updated` int(10) unsigned DEFAULT NULL,
 				PRIMARY KEY (`id`),
@@ -180,7 +180,26 @@ class Vwm_surveys_upd {
 	 */	
 	public function update($current = '')
 	{
-		return FALSE;
+		// Get database prefix
+		$prefix = $this->EE->db->dbprefix;
+
+		// Version 0.2
+		if ($current == '0.2')
+		{
+			// Make allowed groups NULLable
+			$this->EE->db->query("
+				ALTER TABLE  `{$prefix}vwm_surveys_surveys`
+				MODIFY `allowed_groups` VARCHAR(128) CHARACTER SET utf8 NULL DEFAULT NULL
+			");
+
+			// Make question options NULLable
+			$this->EE->db->query("
+				ALTER TABLE  `{$prefix}vwm_surveys_questions`
+				MODIFY `options` MEDIUMTEXT CHARACTER SET utf8 NULL DEFAULT NULL
+			");
+		}
+
+		return TRUE;
 	}
 	
 }

@@ -45,3 +45,14 @@ $('.vwm_radios .all_radios').sortable({
 	axis: 'y',
 	containment: 'parent'
 });
+
+/**
+ * On keyup inside new radio input
+ */
+$('.vwm_radios .new_radio :input').live('keyup', function(e) {
+	// If the use pressed the "enter" key
+	if (e.which == 13) {
+		// Trigger a click event on the "Add Radio" button
+		$(this).closest('div').find('input[type="button"]').trigger('click');
+	}
+});

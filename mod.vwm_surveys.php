@@ -32,6 +32,9 @@ class Vwm_surveys {
 		// Make a local reference to the ExpressionEngine super object
 		$this->EE =& get_instance();
 
+		// Make damn sure module path is defined
+		$this->EE->load->add_package_path(PATH_THIRD . 'vwm_surveys/');
+
 		// Load lang, models, config, and hepler
 		$this->EE->lang->loadfile('vwm_surveys');
 		$this->EE->config->load('vwm_surveys');
@@ -252,7 +255,7 @@ class Vwm_surveys {
 		$variables[0] = array(
 			'id' => $survey['id'],
 			'title' => $survey['title'],
-			'in_allowed_group' => in_array( $this->EE->session->userdata('group_id'), $survey['allowed_groups']),
+			'in_allowed_group' => $this->is_allowed_group($survey['allowed_groups']),
 			'complete' => $this->is_complete($survey_id),
 			'progress' => $this->is_progress($survey_id), // Returns a submission hash if there is progress with this survey
 			'total_pages' => $total_pages,
@@ -316,7 +319,7 @@ class Vwm_surveys {
 		if ( $survey = $this->EE->vwm_surveys_m->get_survey($survey_id) )
 		{
 			// If the current user groups is not allowed to take this survey
-			if ( ! in_array( $this->EE->session->userdata('group_id'), $survey['allowed_groups']) )
+			if ( ! $this->is_allowed_group($survey['allowed_groups']) )
 			{
 				show_error('You are not allowed to take this survey');
 			}
@@ -673,6 +676,38 @@ class Vwm_surveys {
 	}
 
 	/**
+	 * Determine if the current group is allowed to take the current survey
+	 *
+	 * @access private
+	 * @param mixed				"A" (all), NULL (none), or array of allowed groups
+	 * @return bool
+	 */
+	private function is_allowed_group($allowed_groups)
+	{
+		// By default this group will not be allowed to take this survey
+		$all_good_in_da_hood = FALSE;
+
+		// Determine if the current group is allowed to take this survey
+		switch($allowed_groups)
+		{
+			// All groups are allowed to take this survey
+			case 'A':
+				$all_good_in_da_hood = TRUE;
+				break;
+			// No groups are allowed to take this survey
+			case NULL:
+				$all_good_in_da_hood = FALSE;
+				break;
+			// Select groups are allowed to take this sruvey
+			default:
+				$all_good_in_da_hood = in_array( $this->EE->session->userdata('group_id'), $allowed_groups );
+				break;
+		}
+
+		return $all_good_in_da_hood;
+	}
+
+	/**
 	 * Refresh the XID
 	 *
 	 * After a user submits a survey that has errors the XID is destroyed. We
@@ -702,6 +737,7 @@ class Vwm_surveys {
 
 		return $hash;
 	}
+
 }
 
 // EOF

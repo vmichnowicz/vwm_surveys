@@ -17,16 +17,24 @@ function vwm_text_validate($id, $input, $options)
 	// The only user input is from the sole text input
 	$data['text'] = trim($input);
 
-	// Make sure our string is not too long
-	if ( strlen($data['text']) > $max_length )
+	// If we need to check max length
+	if ($max_length !== NULL)
 	{
-		$data['errors'][] = 'Text may not exceede ' . $max_length . ' characters';
+		// Make sure our string is not too long
+		if ( strlen($data['text']) > $max_length )
+		{
+			$data['errors'][] = 'Text may not exceede ' . $max_length . ' characters';
+		}
 	}
 
-	// Make sure our string is not too short
-	if ( strlen($data['text']) < $min_length )
+	// If we need to check min length
+	if ($min_length !== NULL)
 	{
-		$data['errors'][] = 'Text must be at least ' . $min_length . ' characters';
+		// Make sure our string is not too short
+		if ( strlen($data['text']) < $min_length )
+		{
+			$data['errors'][] = 'Text must be at least ' . $min_length . ' characters';
+		}
 	}
 
 	return $data;

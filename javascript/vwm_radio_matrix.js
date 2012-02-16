@@ -59,3 +59,14 @@ $('.vwm_radio_matrix ul.options').sortable({
 	axis: 'y',
 	containment: 'parent'
 });
+
+/**
+ * On keyup inside new radio input
+ */
+$('.vwm_radio_matrix .new_matrix_option :input').live('keyup', function(e) {
+	// If the use pressed the "enter" key
+	if (e.which == 13) {
+		// Trigger a click event on the "Add Radio" button
+		$(this).closest('div').find('input[type="button"]').trigger('click');
+	}
+});

@@ -7,7 +7,7 @@
 
 <h2>Survey Results</h2>
 
-<?php if ($results): ?>
+<?php if ( isset($results) && $results['num_submissions'] > 0 ): ?>
 
 	<p>Total number of survey submissions: <?php echo $results['num_submissions']; ?></p>
 	<p>Survey results generated <?php echo date('l F jS Y @ g:ia', $results['compiled']); ?></p>
@@ -30,5 +30,5 @@
 		<?php endforeach; ?>
 	</ol>
 <?php else: ?>
-	<p>No results have been compiled yet.</p>
+	<p>Either no results have been compiled yet or no survey submissions have been recorded.</p>
 <?php endif; ?>
