@@ -25,7 +25,7 @@
 </ul>
 
 <div class="new_matrix_option">
-	<label>New matrix option: <input type="text" /></label>
+	<label>New matrix option: <input type="text" class="no_submit"/></label>
 	<input type="button" name="new_matrix_option" value="Add Option">
 </div>
 

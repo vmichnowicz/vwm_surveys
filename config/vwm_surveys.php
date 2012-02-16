@@ -15,10 +15,6 @@ $config['vwm_surveys_question_types'] = array(
 );
 
 // Date formats for vwm_date question type
-$config['vwm_surveys_date_formats'] = array(
-	'YYYY/MM/DD' => 'YYYY/MM/DD',
-	'DD/MM/YYYY' => 'DD/MM/YYYY',
-	'MM/DD/YYYY' => 'MM/DD/YYYY'
-);
+$config['vwm_surveys_date_formats'] = array('YYYY-MM-DD', 'DD-MM-YYYY', 'MM-DD-YYYY');
 
 // EOF

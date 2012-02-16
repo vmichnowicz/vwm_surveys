@@ -1,11 +1,11 @@
 <label>
 	Date Format:
 	<select name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][format]">
-		<?php foreach($this->config->item('vwm_surveys_date_formats') as $key => $value): ?>
-			<?php if ( isset($options['format']) AND $options['format'] == $key ): ?>
-				<option value="<?php echo $key; ?>" selected="selected"><?php echo $value; ?></option>
+		<?php foreach($this->config->item('vwm_surveys_date_formats') as $format): ?>
+			<?php if ( isset($options['format']) AND $options['format'] == $format ): ?>
+				<option value="<?php echo $format; ?>" selected="selected"><?php echo $format; ?></option>
 			<?php else: ?>
-				<option value="<?php echo $key; ?>"><?php echo $value; ?></option>
+				<option value="<?php echo $format; ?>"><?php echo $format; ?></option>
 			<?php endif; ?>
 		<?php endforeach; ?>
 	</select>
