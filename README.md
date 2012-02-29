@@ -8,6 +8,10 @@ VWM Surveys is licensed under the [Apache 2 License](http://www.apache.org/licen
 
 ## Change Log
 
+### 0.3.2
+
+ * Adding "Guests" member group to prevent PHP error on survey submissions page
+
 ### 0.3.1
 
  * Fixed date question type issues (If you are upgrading from an earlier version you will have to open up each survey and re-save it...)
