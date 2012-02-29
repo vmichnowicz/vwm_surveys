@@ -124,6 +124,19 @@ class Vwm_surveys_m extends CI_Model {
 			);
 		}
 
+		// Get all groups
+		$groups = $this->get_groups();
+
+		// Get "Guests" group ID
+		$guest_group_id = array_search('Guests', $groups);
+
+		// Insert guest as a member
+		$data[0] = array(
+			'id' => 0,
+			'group_id' => $guest_group_id !== FALSE ? (int) $guest_group_id : NULL,
+			'screen_name' => 'Guests'
+		);
+
 		return $data;
 	}
 
