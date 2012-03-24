@@ -18,8 +18,8 @@
 class Vwm_surveys_upd {
 
 	private $EE;
-	public $version = '0.3.2';
-	
+	public $version = '0.3.3';
+
 	/**
 	 * Constructor
 	 * 
@@ -42,7 +42,7 @@ class Vwm_surveys_upd {
 	{
 		// VWM Polls module information
 		$data = array(
-			'module_name' => 'Vwm_surveys' ,
+			'module_name' => 'Vwm_surveys',
 			'module_version' => $this->version,
 			'has_cp_backend' => 'y',
 			'has_publish_fields' => 'n'
@@ -129,7 +129,7 @@ class Vwm_surveys_upd {
 	}
 
 	/**
-	 * Module Uninstaller
+	 * Uninstall
 	 *
 	 * @access public
 	 * @return bool
@@ -173,7 +173,7 @@ class Vwm_surveys_upd {
 	}
 
 	/**
-	 * Module Updater
+	 * Update
 	 *
 	 * @access	public
 	 * @return	bool
@@ -196,6 +196,21 @@ class Vwm_surveys_upd {
 			$this->EE->db->query("
 				ALTER TABLE  `{$prefix}vwm_surveys_questions`
 				MODIFY `options` MEDIUMTEXT CHARACTER SET utf8 NULL DEFAULT NULL
+			");
+		}
+
+		if ($current < '0.3.3')
+		{
+			// Make default value for page title an empty string
+			$this->EE->db->query("
+				ALTER TABLE  `{$prefix}vwm_surveys_pages`
+				CHANGE `title` `title` VARCHAR(128) CHARACTER SET utf8 NOT NULL DEFAULT ''
+			");
+
+			// Make default page 0
+			$this->EE->db->query("
+				ALTER TABLE  `{$prefix}vwm_surveys_pages`
+				CHANGE `page` `page` TINYINT(4) NOT NULL DEFAULT '0'
 			");
 		}
 

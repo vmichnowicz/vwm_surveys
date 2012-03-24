@@ -554,7 +554,7 @@ class Vwm_surveys_mcp {
 	{
 		$title = trim($this->EE->input->get('title'));
 		$survey_id = (int)$this->EE->input->get('survey_id');
-		
+
 		// Only add a page if we have a title and a survey ID
 		if ($title AND $survey_id)
 		{

@@ -655,7 +655,7 @@ class Vwm_surveys_m extends CI_Model {
 			->order_by('page', 'DESC')
 			->limit(1)
 			->get('vwm_surveys_pages');
-		
+
 		// If this survey has at least one page
 		if ($query->num_rows() > 0)
 		{
@@ -678,11 +678,12 @@ class Vwm_surveys_m extends CI_Model {
 		{
 			$data = array(
 				'survey_id' => $id,
-				'title' => $title
+				'title' => $title,
+				'page' => 0 // Our first page!
 			);
-			
+
 			$this->db->insert('vwm_surveys_pages', $data);
-			
+
 			// If this insert was successful return 0, else return FALSE
 			return $this->db->affected_rows() > 0 ? 0 : FALSE;
 		}
