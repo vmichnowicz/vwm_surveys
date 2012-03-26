@@ -8,6 +8,10 @@ VWM Surveys is licensed under the [Apache 2 License](http://www.apache.org/licen
 
 ## Change Log
 
+### 0.3.4
+
+* Fixed MySQL default value bug for survey questions
+
 ### 0.3.3
 
 * Updated datepicker formating for date question type

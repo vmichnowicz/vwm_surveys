@@ -18,7 +18,7 @@
 class Vwm_surveys_upd {
 
 	private $EE;
-	public $version = '0.3.3';
+	public $version = '0.3.4';
 
 	/**
 	 * Constructor
@@ -211,6 +211,16 @@ class Vwm_surveys_upd {
 			$this->EE->db->query("
 				ALTER TABLE  `{$prefix}vwm_surveys_pages`
 				CHANGE `page` `page` TINYINT(4) NOT NULL DEFAULT '0'
+			");
+		}
+
+		if ($current < '0.3.4')
+		{
+			// Make default value for page options NULL and default value for custom_order 0
+			$this->EE->db->query("
+				ALTER TABLE  `{$prefix}vwm_surveys_questions`
+				CHANGE `options` `options` MEDIUMTEXT CHARACTER SET utf8 NULL DEFAULT NULL ,
+				CHANGE `custom_order` `custom_order` TINYINT(3) UNSIGNED NOT NULL DEFAULT  '0'
 			");
 		}
 

@@ -551,15 +551,21 @@ class Vwm_surveys_m extends CI_Model {
 	 * @access public
 	 * @param array				Question data
 	 * @return int
+	 * @todo refactor this so we are not passing in an array of $data
 	 */
 	public function insert_question($data)
 	{
 		$page = (int)$data['page'];
 		$survey_id = (int)$data['survey_id'];
 
+		if ( ! array_key_exists('options', $data) )
+		{
+			$data['options'] = NULL;
+		}
+
 		// Get number of questions on the current page
 		$num_questions_on_page = $this->db
-			->select('COUNT( `id`) AS num_questions_on_page', FALSE)
+			->select('COUNT(`id`) AS num_questions_on_page', FALSE)
 			->where('page', $page)
 			->where('survey_id', $survey_id)
 			->get('vwm_surveys_questions')
