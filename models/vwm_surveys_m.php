@@ -17,7 +17,10 @@
  */
 class Vwm_surveys_m extends CI_Model {
 
-	protected $EE;
+	// Constants
+	const MAX_NUM_QUESTIONS = 100;
+
+	protected $EE, $survey_id, $survey_title, $page, $page_title, $question_id, $question_title, $question_type, $question_options, $question_custom_order;
 
 	/**
 	 * Model construct
@@ -29,6 +32,37 @@ class Vwm_surveys_m extends CI_Model {
 	{
 		// Make a local reference to the ExpressionEngine super object
 		$this->EE =& get_instance();
+	}
+
+	/**
+	 * When a method is called that does not explicitely exist in this class
+	 *
+	 * Used primarly for get and set methods
+	 *
+	 * @access public
+	 * @param string
+	 * @param array
+	 * @return mixed
+	 */
+	public function __call($name, $arguments) {
+		// Get a property
+		if ( stripos($name, 'get_') === 0 )
+		{
+			$name = substr ($name, 4);
+			return $this->{$name};
+		}
+		// Set a property (make sure a parameter was passed)
+		elseif ( stripos($name, 'set_') === 0 AND array_key_exists(0, $arguments) )
+		{
+			$name = substr($name, 4);
+			$this->{$name} = $arguments[0];
+			return $this; // Allow method chaining
+		}
+		// Undefined method
+		else
+		{
+			log_message('debug', 'Undefined method "' . $name . '".');
+		}
 	}
 
 	/**
@@ -383,12 +417,13 @@ class Vwm_surveys_m extends CI_Model {
 	/**
 	 * Reorder all questions on a survey page
 	 * 
-	 * @access public
+	 * @access private
 	 * @param int				Survey ID
 	 * @param int				Page number
 	 * @return bool
+	 * @todo Possibly use a different update method such as http://stackoverflow.com/questions/8862215/insert-sequential-number-in-mysql
 	 */
-	public function update_questions_custom_order($survey_id, $page)
+	private function update_questions_custom_order($survey_id, $page)
 	{
 		$query = $this->db
 			->where('survey_id', $survey_id)
@@ -547,21 +582,27 @@ class Vwm_surveys_m extends CI_Model {
 	
 	/**
 	 * Add a new question to a survey
-	 * 
+	 *
 	 * @access public
-	 * @param array				Question data
-	 * @return int
-	 * @todo refactor this so we are not passing in an array of $data
+	 * @param int				Survey ID
+	 * @param int				Page number
+	 * @param int				Page number
+	 * @param string			Question title
+	 * @param string			Question type
+	 * @param int				Question order
+	 * @param string			Question options
+	 * @return int|bool			Question insert ID on success, FALSE on failure
 	 */
-	public function insert_question($data)
+	public function insert_question($survey_id = NULL, $page = NULL, $question_title = NULL, $question_type = NULL, $question_custom_order = NULL, $question_options = NULL)
 	{
-		$page = (int)$data['page'];
-		$survey_id = (int)$data['survey_id'];
-
-		if ( ! array_key_exists('options', $data) )
-		{
-			$data['options'] = NULL;
-		}
+		$data = array(
+			'survey_id' => isset($survey_id) ? (int)$survey_id : $this->survey_id,
+			'page' => isset($page) ? (int)$page : $this->page,
+			'title' => isset($question_title) ? $question_title : $this->question_title,
+			'type' => isset($question_type) ? $question_type : $this->question_type,
+			'custom_order' => isset($question_custom_order) ? (int)$question_custom_order : $this->question_custom_order,
+			'options' => isset($question_options) ? $question_options : $this->question_options
+		);
 
 		// Get number of questions on the current page
 		$num_questions_on_page = $this->db
@@ -572,7 +613,7 @@ class Vwm_surveys_m extends CI_Model {
 			->row()->num_questions_on_page;
 
 		// We can only have 100 questions on a page
-		if ($num_questions_on_page < 100)
+		if ($num_questions_on_page < self::MAX_NUM_QUESTIONS)
 		{
 			// Insert new question
 			$this->db->insert('vwm_surveys_questions', $data);
@@ -593,13 +634,20 @@ class Vwm_surveys_m extends CI_Model {
 	 * @param int				Page number
 	 * @return bool
 	 */
-	public function delete_question($id, $survey_id = NULL, $page = NULL)
+	public function delete_question($question_id = NULL, $survey_id = NULL, $page = NULL)
 	{
+		$question_id = isset($question_id) ? $question_id : $this->question_id;
+		$survey_id = isset($survey_id) ? $survey_id : $this->survey_id;
+		$page = isset($page) ? $page : $this->page;
+
+		// We need a question ID in order to continue
+		if ($question_id === NULL) { return FALSE; }
+
 		// Make sure we have a valid page number and survey ID
-		if ( $page == NULL OR $survey_id == NULL )
+		if ($survey_id === NULL OR $page === NULL )
 		{
 			$data = $this->db
-				->where('id', $id)
+				->where('id', $question_id)
 				->limit(1)
 				->get('vwm_surveys_questions')
 				->row();
@@ -609,7 +657,7 @@ class Vwm_surveys_m extends CI_Model {
 		}
 		
 		// Delete question
-		$this->db->where('id', $id)->limit(1)->delete('vwm_surveys_questions');
+		$this->db->where('id', $question_id)->limit(1)->delete('vwm_surveys_questions');
 
 		// Reorder all the questions in this survey page
 		$this->update_questions_custom_order($survey_id, $page);

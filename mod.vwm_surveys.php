@@ -42,7 +42,7 @@ class Vwm_surveys {
 		$this->EE->load->model(array('vwm_surveys_m', 'vwm_surveys_submissions_m'));
 
 		// Load config files for all question types
-		foreach ( $this->question_types() as $slug => $name)
+		foreach ( $this->get_question_types() as $slug => $name)
 		{
 			$this->EE->load->helper('vwm_' . $slug);
 		}
@@ -55,7 +55,7 @@ class Vwm_surveys {
 	 * @access private
 	 * @return array
 	 */
-	private function question_types()
+	private function get_question_types()
 	{
 		// If our question types have not yet been loaded
 		if ( ! self::$question_types )
