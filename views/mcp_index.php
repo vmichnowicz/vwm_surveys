@@ -20,10 +20,11 @@
 					<td><?php echo $survey['num_questions']; ?></td>
 					<td><?php echo date('l F jS Y @ g:ia', $survey['created']); ?></td>
 					<td><?php echo $survey['updated'] ? date('l F jS Y @ g:ia', $survey['updated']) : NULL; ?></td>
-					<td>
+					<td style="text-align: center;">
 						<a href="<?php echo $compile_survey_results_url . $survey['id']; ?>" class="submit">Compile Results</a>
 						<a href="<?php echo $survey_results_url . $survey['id']; ?>" class="submit">Results</a>
 						<a href="<?php echo $edit_url . $survey['id']; ?>" class="submit">Modify</a>
+						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=delete_survey_submissions' . AMP . 'survey_id=' . $survey['id'];?>" class="submit">Remove All Submissions</a>
 						<a href="<?php echo $delete_url . $survey['id']; ?>" class="submit">Delete</a>
 					</td>
 				</tr>

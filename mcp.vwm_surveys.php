@@ -380,6 +380,60 @@ class Vwm_surveys_mcp {
 	}
 
 	/**
+	 * Delete an individual survey submission
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function delete_survey_submission()
+	{
+		$id = (int)$this->EE->input->get('id');
+
+		if ($id)
+		{
+			if ( $this->EE->vwm_surveys_submissions_m->delete_survey_submission($id) === TRUE )
+			{
+				// Great success!
+				$this->EE->session->set_flashdata('message_success', 'Survey submission removed.');
+			}
+			else
+			{
+				// Survey submission not deleted
+				$this->EE->session->set_flashdata('message_failure', 'Survey submission not removed.');
+			}
+		}
+
+		$this->EE->functions->redirect(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=survey_submissions');
+	}
+
+	/**
+	 * Delete all survey submissions associated with a given survey
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function delete_survey_submissions()
+	{
+		$survey_id = (int)$this->EE->input->get('survey_id');
+
+		if ($survey_id)
+		{
+			if ( $this->EE->vwm_surveys_submissions_m->delete_survey_submissions($survey_id) === TRUE )
+			{
+				// Great success!
+				$this->EE->session->set_flashdata('message_success', 'Survey submissions removed.');
+			}
+			else
+			{
+				// Survey submission not deleted
+				$this->EE->session->set_flashdata('message_failure', 'Survey submissions not removed.');
+			}
+		}
+
+		$this->EE->functions->redirect(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys');
+	}
+
+	/**
 	 * View results for a given survey CP page
 	 *
 	 * @access public
