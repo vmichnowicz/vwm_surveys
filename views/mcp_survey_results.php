@@ -7,7 +7,7 @@
 
 <h2>Survey Results</h2>
 
-<?php if ( isset($results) && $results['num_submissions'] > 0 ): ?>
+<?php if ( ! empty($results) AND isset($results['num_submissions']) AND $results['num_submissions'] > 0 ): ?>
 
 	<p>Total number of survey submissions: <?php echo $results['num_submissions']; ?></p>
 	<p>Survey results generated <?php echo date('l F jS Y @ g:ia', $results['compiled']); ?></p>
@@ -16,13 +16,15 @@
 		<?php foreach ($survey['pages'] as $page): ?>
 			<li>
 				<h3><?php echo $page['title']; ?></h3>
-				<?php if ($page['questions']): ?>
+				<?php if ( isset($page['questions'])  AND is_array($page['questions']) AND count($page['questions']) > 0 ): ?>
 					<ul>
 						<?php foreach ($page['questions'] as $question): ?>
-							<li>
-								<h4><?php echo $question['title']; ?></h4>
-								<?php $this->load->view('questions_results/vwm_' . $question['type'] . '_results', array('question' => $question, 'results' => $results['data'][ $question['id'] ], 'num_submissions' => $results['num_submissions'] )); ?>
-							</li>
+							<?php if ( isset($results['data'][ $question['id'] ]) ): ?>
+								<li>
+									<h4><?php echo $question['title']; ?></h4>
+									<?php $this->load->view('questions_results/vwm_' . $question['type'] . '_results', array('question' => $question, 'results' => $results['data'][ $question['id'] ], 'num_submissions' => $results['num_submissions'] )); ?>
+								</li>
+							<?php endif; ?>
 						<?php endforeach; ?>
 					</ul>
 				<?php endif; ?>

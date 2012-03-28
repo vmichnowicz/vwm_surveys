@@ -18,7 +18,7 @@
 class Vwm_surveys_upd {
 
 	private $EE;
-	public $version = '0.3.4';
+	public $version = '0.3.5';
 
 	/**
 	 * Constructor
@@ -63,9 +63,9 @@ class Vwm_surveys_upd {
 				`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 				`title` varchar(128) DEFAULT NULL,
 				`type` varchar(32) NOT NULL,
-				`options` mediumtext NOT NULL,
-				`custom_order` tinyint(3) unsigned NOT NULL,
-				`page` tinyint(3) unsigned NOT NULL DEFAULT '0',
+				`options` mediumtext NULL DEFAULT NULL,
+				`custom_order` tinyint(3) unsigned NOT NULL DEFAULT  '0',
+				`page` tinyint(4) unsigned NOT NULL DEFAULT '0',
 				`survey_id` mediumint(8) unsigned NOT NULL,
 				PRIMARY KEY (`id`),
 				UNIQUE KEY `survey_id_2` (`survey_id`,`page`,`custom_order`),
@@ -91,10 +91,10 @@ class Vwm_surveys_upd {
 		$this->EE->db->query("
 			CREATE TABLE IF NOT EXISTS `{$prefix}vwm_surveys_pages` (
 				`survey_id` mediumint(9) NOT NULL,
-				`page` tinyint(4) NOT NULL,
-				`title` varchar(128) NOT NULL,
+				`page` tinyint(4) NOT NULL DEFAULT '0',
+				`title` varchar(128) NOT NULL DEFAULT '',
 				UNIQUE KEY `survey_id` (`survey_id`,`page`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8;	
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 		");
 
 		// Table to store survey submissions

@@ -243,13 +243,13 @@ class Vwm_surveys_m extends CI_Model {
 			->where('id', $survey_id)
 			->limit(1)
 			->get('vwm_surveys_surveys');
-		
+
 		$data = array();
 
 		if ($query->num_rows() > 0)
 		{
 			$row = $query->row(); 
-			
+
 			$data = array(
 				'id' => $survey_id,
 				'title' => $row->title,
@@ -259,7 +259,7 @@ class Vwm_surveys_m extends CI_Model {
 				'updated' => (int)$row->updated
 			);
 		}
-		
+
 		return $data;
 	}
 
