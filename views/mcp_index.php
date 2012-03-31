@@ -21,11 +21,11 @@
 					<td><?php echo date('l F jS Y @ g:ia', $survey['created']); ?></td>
 					<td><?php echo $survey['updated'] ? date('l F jS Y @ g:ia', $survey['updated']) : NULL; ?></td>
 					<td style="text-align: center;">
-						<a href="<?php echo $compile_survey_results_url . $survey['id']; ?>" class="submit">Compile Results</a>
-						<a href="<?php echo $survey_results_url . $survey['id']; ?>" class="submit">Results</a>
-						<a href="<?php echo $edit_url . $survey['id']; ?>" class="submit">Modify</a>
+						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=compile_survey_results' . AMP . 'survey_id=' . $survey['id']; ?>" class="submit">Compile Results</a>
+						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=survey_results' . AMP . 'survey_id=' . $survey['id']; ?>" class="submit">Results</a>
+						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=edit_survey' . AMP . 'survey_id=' . $survey['id']; ?>" class="submit">Modify</a>
 						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=delete_survey_submissions' . AMP . 'survey_id=' . $survey['id'];?>" class="submit confirm" title="Remove all survey submissions for this survey">Remove All Submissions</a>
-						<a href="<?php echo $delete_url . $survey['id']; ?>" class="submit confirm" title="Delete survey and all associated survey submissions">Delete</a>
+						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=delete_survey' . AMP . 'survey_id=' . $survey['id']; ?>" class="submit confirm" title="Delete survey and all associated survey submissions">Delete</a>
 					</td>
 				</tr>
 			<?php endforeach; ?>
