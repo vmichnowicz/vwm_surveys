@@ -131,6 +131,20 @@ $('.delete_page a').live('click', function() {
 });
 
 /**
+ * Confirm an action
+ *
+ * @return bool|void
+ */
+$('a.confirm').click(function(e) {
+	if ( confirm( $(this).attr('title') ) ) {
+		return true;
+	}
+	else {
+		e.preventDefault();
+	}
+});
+
+/**
  * Add a page to the edit survey page
  */
 $('.add_page a').live('click', function() {
