@@ -3,7 +3,7 @@
 	<?php if (isset($options['radios'])): ?>
 		<?php foreach($options['radios'] as $key => $radio): ?>
 			<li>
-				<input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][radios][<?php echo $key; ?>][text]" value="<?php echo $radio['text']; ?>"/>
+				<input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][radios][<?php echo $key; ?>][text]" value="<?php echo htmlspecialchars($radio['text'], ENT_QUOTES, 'UTF-8'); ?>"/>
 				<select name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][radios][<?php echo $key; ?>][type]">
 					<?php if ($radio['type'] == 'defined'): ?>
 						<option value="defined" selected="selected">Defined</option>

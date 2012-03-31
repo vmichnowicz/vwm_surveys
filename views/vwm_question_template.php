@@ -1,7 +1,7 @@
 <!-- Question title -->
 <label class="question_title">
 	<span>Title:</span>
-	<input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][title]" value="<?php echo $question['title']; ?>" />
+	<input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][title]" value="<?php echo htmlspecialchars($question['title'], ENT_QUOTES, 'UTF-8'); ?>" />
 </label>
 
 <div class="question_controls">

@@ -3,7 +3,7 @@
 	<?php if (isset($options['checkboxes'])): ?>
 		<?php foreach($options['checkboxes'] as $key => $checkbox): ?>
 			<li>
-				<input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][checkboxes][<?php echo $key; ?>][text]" value="<?php echo $checkbox['text']; ?>"/>
+				<input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][checkboxes][<?php echo $key; ?>][text]" value="<?php echo htmlspecialchars($checkbox['text'], ENT_QUOTES, 'UTF-8'); ?>"/>
 				<select name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][checkboxes][<?php echo $key; ?>][type]">
 					<?php if ($checkbox['type'] == 'defined'): ?>
 						<option value="defined" selected="selected">Defined</option>
