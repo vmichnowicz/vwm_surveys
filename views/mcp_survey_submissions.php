@@ -36,14 +36,14 @@
 
 		<div class="input">
 			<label for="filter_created_from">Created from:</label>
-			<input type="text" name="filter_created_from" id="filter_created_from" class="datepicker" value="<?php echo $filters['created_from'] ? $filters['created_from'] : NULL; ?>" />
-			to <input type="text" name="filter_created_to" id="filter_created_to" class="datepicker" value="<?php echo $filters['created_to'] ? $filters['created_to'] : NULL; ?>" />
+			<input type="text" name="filter_created_from" id="filter_created_from" class="datepicker" value="<?php echo $filters['created_from'] ? htmlspecialchars($filters['created_from'], ENT_QUOTES, 'UTF-8') : NULL; ?>" />
+			to <input type="text" name="filter_created_to" id="filter_created_to" class="datepicker" value="<?php echo $filters['created_to'] ? htmlspecialchars($filters['created_to'], ENT_QUOTES, 'UTF-8') : NULL; ?>" />
 		</div>
 
 		<div class="input">
 			<label for="filter_updated_from">Updated from:</label>
-			<input type="text" name="filter_updated_from" id="filter_updated_from" class="datepicker" value="<?php echo $filters['updated_from'] ? $filters['updated_from'] : NULL; ?>" />
-			to <input type="text" name="filter_updated_to" id="filter_updated_to" class="datepicker" value="<?php echo $filters['updated_to'] ? $filters['updated_to'] : NULL; ?>" />
+			<input type="text" name="filter_updated_from" id="filter_updated_from" class="datepicker" value="<?php echo $filters['updated_from'] ? htmlspecialchars($filters['updated_from'], ENT_QUOTES, 'UTF-8') : NULL; ?>" />
+			to <input type="text" name="filter_updated_to" id="filter_updated_to" class="datepicker" value="<?php echo $filters['updated_to'] ? htmlspecialchars($filters['updated_to'], ENT_QUOTES, 'UTF-8') : NULL; ?>" />
 		</div>
 
 		<div class="input">

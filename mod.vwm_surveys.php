@@ -41,10 +41,18 @@ class Vwm_surveys {
 		$this->EE->load->helper('vwm_surveys');
 		$this->EE->load->model(array('vwm_surveys_m', 'vwm_surveys_submissions_m'));
 
-		// Load config files for all question types
-		foreach ( $this->get_question_types() as $slug => $name)
+		// Make sure we are able to grab our question types from the config file
+		if ( is_array($this->get_question_types()) AND count($this->get_question_types() > 0) )
 		{
-			$this->EE->load->helper('vwm_' . $slug);
+			// Load config files for all question types
+			foreach ( $this->get_question_types() as $slug => $name)
+			{
+				$this->EE->load->helper('vwm_' . $slug);
+			}
+		}
+		else
+		{
+			throw new Exception('Unable to load VWM Surveys question types from config file.');
 		}
 	}
 
@@ -73,7 +81,7 @@ class Vwm_surveys {
 	 * @access private
 	 * @return array
 	 */
-	private function submission_hashes()
+	private function get_submission_hashes()
 	{
 		// If our submission hashes have not yet been gathered
 		if ( self::$submission_hashes == NULL)
@@ -81,7 +89,7 @@ class Vwm_surveys {
 			$hashes = array();
 
 			// If the user has this cookie set
-			if (isset($_COOKIE['vwm_surveys_survey_submissions']))
+			if ( isset($_COOKIE['vwm_surveys_survey_submissions']) )
 			{
 				if ( $cookie = $_COOKIE['vwm_surveys_survey_submissions'] )
 				{
@@ -107,8 +115,8 @@ class Vwm_surveys {
 	public function surveys()
 	{
 		$surveys = array();
-		$user_progress = $this->EE->vwm_surveys_submissions_m->user_submissions_progress( $this->submission_hashes() );
-		$user_complete = $this->EE->vwm_surveys_submissions_m->user_submissions_complete( $this->submission_hashes() );
+		$user_progress = $this->EE->vwm_surveys_submissions_m->user_submissions_progress( $this->get_submission_hashes() );
+		$user_complete = $this->EE->vwm_surveys_submissions_m->user_submissions_complete( $this->get_submission_hashes() );
 
 		// Loop through all surveys
 		foreach ($this->EE->vwm_surveys_m->get_surveys() as $survey)
@@ -240,6 +248,8 @@ class Vwm_surveys {
 			 * 
 			 * '../third_party/vwm_surveys/views/questions_view/vwm_' . $question['type'] . '_view' // EE 2.1
 			 * 'questions_view/vwm_' . $question['type'] . '_view' // EE 2.2 onwards
+			 *
+			 * @todo There really should be a better way to do this...
 			 */
 			$view_file = $this->EE->config->item('app_version') <= 213 ? '../third_party/vwm_surveys/views/' : '';
 			$view_file .= 'questions_view/vwm_' . $question['type'] . '_view';
@@ -580,20 +590,24 @@ class Vwm_surveys {
 	{
 		$return = '';
 
-		if ($errors)
+		if ( ! empty($errors) AND is_array($errors) )
 		{
 			foreach ($errors as $question_id => $question_errors)
 			{
 				// List question title
 				$return .= '<h4>' . htmlentities($questions[ $question_id ]['title'], ENT_QUOTES, 'UTF-8') . '</h4><ul>';
 
-				// List error(s) for this particular question
-				foreach ($question_errors as $error)
+				if ( ! empty($question_errors) AND is_array($question_errors) )
 				{
-					$return .= '<li>' . htmlentities($error, ENT_QUOTES, 'UTF-8') . '</li>';
+					// List error(s) for this particular question
+					foreach ($question_errors as $error)
+					{
+						$return .= '<li>' . htmlentities($error, ENT_QUOTES, 'UTF-8') . '</li>';
+					}
 				}
 
 				$return .= '</ul>';
+
 			}
 		}
 		return $return;
@@ -635,7 +649,7 @@ class Vwm_surveys {
 	private function is_progress($survey_id)
 	{
 		// If we have submission hashes and one of those submission hashes shows survey progress
-		if ( $this->submission_hashes() AND $hash = $this->EE->vwm_surveys_submissions_m->is_progress_by_hashes($survey_id, $this->submission_hashes()) )
+		if ( $this->get_submission_hashes() AND $hash = $this->EE->vwm_surveys_submissions_m->is_progress_by_hashes($survey_id, $this->get_submission_hashes()) )
 		{
 			return $hash;
 		}
@@ -660,7 +674,7 @@ class Vwm_surveys {
 	private function is_complete($survey_id)
 	{
 		// If we have submission hashes and one of those submission hashes shows a complete survey
-		if ( $this->submission_hashes() AND $this->EE->vwm_surveys_submissions_m->is_complete_by_hashes($survey_id, $this->submission_hashes()) )
+		if ( $this->get_submission_hashes() AND $this->EE->vwm_surveys_submissions_m->is_complete_by_hashes($survey_id, $this->get_submission_hashes()) )
 		{
 			return TRUE;
 		}
