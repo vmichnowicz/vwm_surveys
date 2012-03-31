@@ -4,7 +4,7 @@
 	<?php if (isset($options['x'])): ?>
 		<?php foreach ($options['x'] as $key => $option): ?>
 			<li>
-				<input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][x][<?php echo $key; ?>][text]" value="<?php echo $option['text']; ?>" />
+				<input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][x][<?php echo $key; ?>][text]" value="<?php echo htmlspecialchars($option['text'], ENT_QUOTES, 'UTF-8'); ?>" />
 				<input type="button" class="remove" value="Remove" />
 			</li>
 		<?php endforeach; ?>
@@ -17,7 +17,7 @@
 	<?php if (isset($options['y'])): ?>
 		<?php foreach ($options['y'] as $key => $option): ?>
 			<li>
-				<input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][y][<?php echo $key; ?>][text]" value="<?php echo $option['text']; ?>" />
+				<input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][y][<?php echo $key; ?>][text]" value="<?php echo htmlspecialchars($option['text'], ENT_QUOTES, 'UTF-8'); ?>" />
 				<input type="button" class="remove" value="Remove" />
 			</li>
 		<?php endforeach; ?>
