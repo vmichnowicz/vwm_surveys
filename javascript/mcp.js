@@ -185,11 +185,51 @@ $('.toggle > a').click(function() {
 });
 
 /**
- * jQuery UI datepicker
+ * jQuery UI datepicker for date question type
  */
-$('.datepicker').datepicker({
-	altFormat: $.datepicker.W3C
-});
+(function() {
+	var datepickers = $('li.vwm_date .datepicker'); // All date question type datepickers
+	var date_format_selects = $('li.vwm_date select.vwm_date_format'); // All date question type date format selectors
+
+	// Update all datepickers for date question type
+	var update_date_format = function update_date_format() {
+		$(datepickers).each(function() {
+
+			var li = $(this).closest('li');
+			var date_format_select = $(li).find('select.vwm_date_format').val();
+			var date_format = '';
+
+			switch (date_format_select) {
+				// YYYY-MM-DD
+				case 'YYYY-MM-DD':
+					date_format = 'yy-mm-dd'
+					break;
+				// DD-MM-YYYY
+				case 'DD-MM-YYYY':
+					date_format = 'dd-mm-yy'
+					break;
+				// Default to MM-DD-YYYY
+				default:
+					date_format = 'mm-dd-yy'
+					break;
+			}
+
+			$(this).datepicker('destroy');
+
+			$(this).datepicker({
+				dateFormat: date_format
+			});
+
+		});
+
+		return update_date_format;
+	}();
+
+	// Update datepicker whenever format changes
+	$(date_format_selects).live('change', function() {
+		update_date_format();
+	});
+})();
 
 /**
  * Toggle select groups multiselect

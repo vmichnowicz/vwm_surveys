@@ -49,7 +49,7 @@ class Vwm_surveys_mcp {
 		$this->EE->load->helper('vwm_surveys');
 
 		// Load config files for all question types
-		foreach ( $this->question_types() as $slug => $name)
+		foreach ( $this->get_question_types() as $slug => $name)
 		{
 			$this->EE->load->helper('vwm_' . $slug);
 		}
@@ -62,7 +62,7 @@ class Vwm_surveys_mcp {
 	 * @access private
 	 * @return array
 	 */
-	private function question_types()
+	private function get_question_types()
 	{
 		// If our question types have not yet been loaded
 		if ( ! self::$question_types )
@@ -263,7 +263,7 @@ class Vwm_surveys_mcp {
 		));
 
 		// Load JS for all question types
-		foreach ($this->question_types() as $slug => $name)
+		foreach ($this->get_question_types() as $slug => $name)
 		{
 			$this->EE->cp->load_package_js('vwm_' . $slug);
 		}
@@ -274,7 +274,7 @@ class Vwm_surveys_mcp {
 		$data = $this->EE->vwm_surveys_m->get_survey_details($survey_id);
 		$data['action_url'] = 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=update_survey';
 		$data['pages'] = $this->EE->vwm_surveys_m->get_questions_by_page($survey_id);
-		$data['question_types'] = $this->question_types();
+		$data['question_types'] = $this->get_question_types();
 		$data['member_groups'] = $this->EE->vwm_surveys_m->get_groups();
 		$data['has_submissions'] = $this->EE->vwm_surveys_submissions_m->get_survey_submissions(array('survey_id' => $survey_id)) ? TRUE : FALSE; // See if this survey has any submissions
 
@@ -333,14 +333,14 @@ class Vwm_surveys_mcp {
 						// If this is a new question
 						else
 						{
-							$data = array(
-								'title' => trim($question['title']),
-								'type' => $question['type'],
-								'options' => isset($question['options']) ? json_encode($question['options']) : NULL,
-								'custom_order' => (int)$question['custom_order'],
-								'survey_id' => $id,
-								'page' => $page_number
-							);
+							// Set new question properties in model
+							$this->EE->vwm_surveys_m
+								->set_survey_id($id)
+								->set_page($page_number)
+								->set_question_title( trim($question['title']) )
+								->set_question_type( $question['type'] )
+								->set_question_custom_order( $question['custom_order'] )
+								->set_question_options( isset($question['options']) ? json_encode($question['options']) : NULL );
 
 							$this->EE->vwm_surveys_m->insert_question($data);
 						}
@@ -472,33 +472,40 @@ class Vwm_surveys_mcp {
 	public function add_question()
 	{
 		// Get data for our new question
-		$custom_order = (int)$this->EE->input->get('custom_order');
-		$title = 'Question ' . $custom_order;
-		$type = array_key_exists($this->EE->input->get('type'), $this->question_types()) ? $this->EE->input->get('type') : 'text';
-		$page = (int)$this->EE->input->get('page_number');
 		$survey_id = (int)$this->EE->input->get('survey_id');
-		$question = NULL;
+		$page = (int)$this->EE->input->get('page_number');
+		$question_type = array_key_exists($this->EE->input->get('type'), $this->get_question_types()) ? $this->EE->input->get('type') : 'text';
+		$question_custom_order = (int)$this->EE->input->get('custom_order');
+		$question_title = 'Question ' . $question_custom_order;
+		$question = ''; // Question view data
 
-		// Insert the new question into the database and get its ID back
-		if ( $id = $this->EE->vwm_surveys_m->insert_question( array('title' => $title, 'type' => $type, 'custom_order' => $custom_order, 'page' => $page, 'survey_id' => $survey_id) ) )
+		// Set new question properties in model
+		$this->EE->vwm_surveys_m
+			->set_survey_id($survey_id)
+			->set_page($page)
+			->set_question_title($question_title)
+			->set_question_type($question_type)
+			->set_question_custom_order($question_custom_order);
+
+		// Insert the new question into the database and get its insert ID back
+		if ( $id = $this->EE->vwm_surveys_m->insert_question() )
 		{
 			// Prepare data array for our question view
 			$data = array(
 				'question' => array(
-					'title' => $title,
+					'title' => $question_title,
 					'id' => $id,
 					'options' => array(),
-					'type' => $type,
-					'custom_order' => $custom_order
+					'type' => $question_type,
+					'custom_order' => $question_custom_order
 				),
-				'question_type' => $type,
-				'question_number' => $custom_order,
+				'question_type' => $question_type,
+				'question_number' => $question_custom_order,
 				'page_number' => $page,
-				'question_types' => $this->question_types()
+				'question_types' => $this->get_question_types()
 			);
 
 			$question = $this->EE->load->view('vwm_question_template', $data, TRUE);
-
 		}
 
 		// Echo out our question
@@ -554,7 +561,7 @@ class Vwm_surveys_mcp {
 	{
 		$title = trim($this->EE->input->get('title'));
 		$survey_id = (int)$this->EE->input->get('survey_id');
-		
+
 		// Only add a page if we have a title and a survey ID
 		if ($title AND $survey_id)
 		{
