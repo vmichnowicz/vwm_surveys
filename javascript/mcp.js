@@ -187,7 +187,7 @@ $('.toggle > a').click(function() {
 /**
  * jQuery UI datepicker for date question type
  */
-(function() {
+var datepicker = function datepicker() {
 	var datepickers = $('li.vwm_date .datepicker'); // All date question type datepickers
 	var date_format_selects = $('li.vwm_date select.vwm_date_format'); // All date question type date format selectors
 
@@ -214,7 +214,7 @@ $('.toggle > a').click(function() {
 					break;
 			}
 
-			$(this).datepicker('destroy');
+			try { $(this).datepicker('destroy'); } catch (e) { /* Prevent JS error if cannot destroy */ }
 
 			$(this).datepicker({
 				dateFormat: date_format
@@ -229,7 +229,9 @@ $('.toggle > a').click(function() {
 	$(date_format_selects).live('change', function() {
 		update_date_format();
 	});
-})();
+
+	return datepicker;
+}();
 
 /**
  * Toggle select groups multiselect
@@ -268,3 +270,19 @@ $('form.edit_survey').live('submit', function(e) {
 		e.preventDefault();
 	}
 });
+
+/**
+ * Run cleanup function on Ajax complete!
+ */
+$(document).ajaxComplete(function() {
+	ajaxCleanup();
+});
+
+/**
+ * Run Ajax cleanup functions!
+ */
+var ajaxCleanup = function ajaxCleanup() {
+	datepicker();
+
+	return ajaxCleanup;
+}

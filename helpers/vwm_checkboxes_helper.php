@@ -123,15 +123,21 @@ function vwm_checkboxes_compile_results($survey_id, $submission_id, $question_op
 		// Loop through each of the checked checkboxes
 		foreach ($question_data['selections'] as $selection)
 		{
-			// Add +1 to our count for this option
-			$compiled_data[ $selection['option'] ]['count']++;
-
-			// If this selection has "other" text
-			if ( isset($selection['other']) )
+			// Make sure this is a current option (removed options will be ignored)
+			if ( isset($compiled_data[ $selection['option'] ]['count']) )
 			{
-				// Add this "other" text to the compiled data
-				$compiled_data[ $selection['option'] ]['other'][ $submission_id ] = $selection['other'];
+				// Add +1 to our count for this option
+				$compiled_data[ $selection['option'] ]['count']++;
+
+				// If this selection has "other" text
+				if ( isset($selection['other']) )
+				{
+					// Add this "other" text to the compiled data
+					$compiled_data[ $selection['option'] ]['other'][ $submission_id ] = $selection['other'];
+				}
 			}
+
+			
 		}
 	}
 
