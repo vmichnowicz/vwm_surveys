@@ -1,7 +1,7 @@
 <!-- Question title -->
 <label class="question_title">
 	<span>Title:</span>
-	<textarea name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][title]" cols="64" rows="3"><?php echo $question['title']; ?></textarea>
+	<textarea name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][title]" cols="64" rows="3"><?php echo htmlspecialchars($question['title'], ENT_QUOTES, 'UTF-8'); ?></textarea>
 </label>
 
 <div class="question_controls">

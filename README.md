@@ -8,6 +8,10 @@ VWM Surveys is licensed under the [Apache 2 License](http://www.apache.org/licen
 
 ## Change Log
 
+### 0.3.5
+
+* Added URL encoding for checkbox, radio matrix, and radio question types
+
 ### 0.3.4
 
 * Fixed MySQL default value bug for survey questions
