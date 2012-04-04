@@ -23,7 +23,7 @@ function vwm_radios_preprocess($options)
  * @param int				Question ID
  * @param array				User-provided question data
  * @param array				Question options
- * @return type
+ * @return array
  */
 function vwm_radios_validate($id, $input, $options)
 {

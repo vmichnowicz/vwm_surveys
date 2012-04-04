@@ -9,13 +9,13 @@
 function vwm_radio_matrix_preprocess($options)
 {
 	// If the x options are to be displayed randomally
-	if ( $options['x_order'] == 'random')
+	if ( $options['x_order'] === 'random')
 	{
 		$options['x'] = shuffle_assoc($options['x']);
 	}
 
 	// If the y options are to be displayed randomally
-	if ( $options['y_order'] == 'random')
+	if ( $options['y_order'] === 'random')
 	{
 		$options['y'] = shuffle_assoc($options['y']);
 	}
@@ -29,7 +29,7 @@ function vwm_radio_matrix_preprocess($options)
  * @param int				Question ID
  * @param array				User-provided question data
  * @param array				Question options
- * @return type
+ * @return array
  */
 function vwm_radio_matrix_validate($id, $input, $options)
 {
@@ -110,7 +110,7 @@ function vwm_radio_matrix_validate($id, $input, $options)
 function vwm_radio_matrix_compile_results($survey_id, $submission_id, $question_options, $question_data, $compiled_data)
 {
 	// Make sure that this question x & y data
-	if ( isset($question_options['x']) AND $question_options['y'] )
+	if ( isset($question_options['x']) AND isset($question_options['y']) )
 	{
 		/**
 		 * Loop through each of our radio matrix options specified in our question options
@@ -135,7 +135,10 @@ function vwm_radio_matrix_compile_results($survey_id, $submission_id, $question_
 		// Loop through each of the radio matrix selections
 		foreach ($question_data['selections'] as $selection_key => $selection_value)
 		{
-			$compiled_data[ $selection_key ][ $selection_value ]['count']++;
+			if ( isset($compiled_data[ $selection_key ][ $selection_value ]['count']) )
+			{
+				$compiled_data[ $selection_key ][ $selection_value ]['count']++;
+			}
 		}
 	}
 

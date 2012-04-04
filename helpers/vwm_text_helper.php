@@ -6,35 +6,27 @@
  * @param int				Question ID
  * @param text				User-provided question data (in this case it is the text from the text input)
  * @param array				Question options
- * @return type
+ * @return array
  */
 function vwm_text_validate($id, $input, $options)
 {
 	// Min & max length options
-	$min_length = $options['min_length'] != '' ? (int)$options['min_length'] : NULL;
-	$max_length = $options['max_length'] != '' ? (int)$options['max_length'] : NULL;
+	$min_length = empty($options['min_length']) ? NULL : (int)$options['min_length'];
+	$max_length = empty($options['max_length']) ? NULL : (int)$options['max_length'];
 
 	// The only user input is from the sole text input
 	$data['text'] = trim($input);
 
-	// If we need to check max length
-	if ($max_length !== NULL)
+	// Make sure our string is not too long
+	if ( isset($max_length) AND strlen($data['text']) > $max_length )
 	{
-		// Make sure our string is not too long
-		if ( strlen($data['text']) > $max_length )
-		{
-			$data['errors'][] = 'Text may not exceede ' . $max_length . ' characters';
-		}
+		$data['errors'][] = 'Text may not exceede ' . $max_length . ' characters';
 	}
 
-	// If we need to check min length
-	if ($min_length !== NULL)
+	// Make sure our string is not too short
+	if ( isset($min_length) AND strlen($data['text']) < $min_length )
 	{
-		// Make sure our string is not too short
-		if ( strlen($data['text']) < $min_length )
-		{
-			$data['errors'][] = 'Text must be at least ' . $min_length . ' characters';
-		}
+		$data['errors'][] = 'Text must be at least ' . $min_length . ' characters';
 	}
 
 	return $data;
@@ -52,7 +44,10 @@ function vwm_text_validate($id, $input, $options)
  */
 function vwm_text_compile_results($survey_id, $submission_id, $question_options, $question_data, $compiled_data)
 {
-	$compiled_data[ $submission_id ] = $question_data['text'];
+	if ( isset($question_data['text']) )
+	{
+		$compiled_data[ $submission_id ] = $question_data['text'];
+	}
 
 	return $compiled_data;
 }
