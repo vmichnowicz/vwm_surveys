@@ -18,7 +18,7 @@
 class Vwm_surveys_upd {
 
 	private $EE;
-	public $version = '0.3.6';
+	public $version = '0.3.7';
 
 	/**
 	 * Constructor
