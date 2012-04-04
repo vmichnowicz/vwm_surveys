@@ -41,6 +41,12 @@
 						<input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][title]" value="<?php echo $page['title']; ?>" />
 					</label>
 
+					<!-- Page description -->
+					<label class="page_description">
+						<span>Page Description:</span>
+						<textarea name="vwm_surveys_pages[<?php echo $page_number; ?>][description]" rows="32" cols="8"><?php echo isset($page['description']) ? $page['description'] : NULL; ?></textarea>
+					</label>
+
 					<!-- Questions -->
 					<ul class="vwm_surveys_questions">
 						<?php if ( isset($page['questions']) ): ?>

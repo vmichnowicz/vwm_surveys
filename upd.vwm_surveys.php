@@ -93,6 +93,7 @@ class Vwm_surveys_upd {
 				`survey_id` mediumint(9) NOT NULL,
 				`page` tinyint(4) NOT NULL DEFAULT '0',
 				`title` varchar(128) NOT NULL DEFAULT '',
+				`description` mediumtext NOT NULL DEFAULT '',
 				UNIQUE KEY `survey_id` (`survey_id`,`page`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 		");
@@ -188,13 +189,13 @@ class Vwm_surveys_upd {
 		{
 			// Make allowed groups NULLable
 			$this->EE->db->query("
-				ALTER TABLE  `{$prefix}vwm_surveys_surveys`
+				ALTER TABLE `{$prefix}vwm_surveys_surveys`
 				MODIFY `allowed_groups` VARCHAR(128) CHARACTER SET utf8 NULL DEFAULT NULL
 			");
 
 			// Make question options NULLable
 			$this->EE->db->query("
-				ALTER TABLE  `{$prefix}vwm_surveys_questions`
+				ALTER TABLE `{$prefix}vwm_surveys_questions`
 				MODIFY `options` MEDIUMTEXT CHARACTER SET utf8 NULL DEFAULT NULL
 			");
 		}
@@ -203,13 +204,13 @@ class Vwm_surveys_upd {
 		{
 			// Make default value for page title an empty string
 			$this->EE->db->query("
-				ALTER TABLE  `{$prefix}vwm_surveys_pages`
+				ALTER TABLE `{$prefix}vwm_surveys_pages`
 				CHANGE `title` `title` VARCHAR(128) CHARACTER SET utf8 NOT NULL DEFAULT ''
 			");
 
 			// Make default page 0
 			$this->EE->db->query("
-				ALTER TABLE  `{$prefix}vwm_surveys_pages`
+				ALTER TABLE `{$prefix}vwm_surveys_pages`
 				CHANGE `page` `page` TINYINT(4) NOT NULL DEFAULT '0'
 			");
 		}
@@ -218,9 +219,18 @@ class Vwm_surveys_upd {
 		{
 			// Make default value for page options NULL and default value for custom_order 0
 			$this->EE->db->query("
-				ALTER TABLE  `{$prefix}vwm_surveys_questions`
+				ALTER TABLE `{$prefix}vwm_surveys_questions`
 				CHANGE `options` `options` MEDIUMTEXT CHARACTER SET utf8 NULL DEFAULT NULL ,
 				CHANGE `custom_order` `custom_order` TINYINT(3) UNSIGNED NOT NULL DEFAULT  '0'
+			");
+		}
+
+		if ($current < '0.4')
+		{
+			// Make default value for page options NULL and default value for custom_order 0
+			$this->EE->db->query("
+				ALTER TABLE `{$prefix}vwm_surveys_questions`
+				ALTER TABLE `exp_vwm_surveys_pages` ADD `description` MEDIUMTEXT NOT NULL DEFAULT  ''
 			");
 		}
 
