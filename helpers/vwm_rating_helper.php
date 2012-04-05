@@ -11,19 +11,20 @@
 function vwm_rating_validate($id, $input, $options)
 {
 	// Rating options
-	$max = isset($options['max']) ? (int)$options['max'] : 0;
+	$min = isset($options['min']) ? (int)$options['min'] : 0;
+	$max = isset($options['max']) ? (int)$options['max'] : NULL;
 	$type = $options['type'];
 
 	// The only user input is from the sole date input
 	$data['rating'] = trim($input);
 
 	// Check to make sure this is a number
-	if ( is_numeric($data['rating']) )
+	if ( ctype_digit($data['rating']) )
 	{
 		// If this is not an integer
-		if ( $data['rating'] !== (string)(int)$data['rating'] )
+		if ( isset($max) AND $data['rating'] > $max )
 		{
-			$data['errors'][] = 'Rating must be a whole number (integer).';
+			$data['errors'][] = "Rating must be less than $max.";
 		}
 	}
 	else
@@ -51,7 +52,6 @@ function vwm_rating_compile_results($survey_id, $submission_id, $question_option
 	if ( isset( $question_data['rating'] ) )
 	{
 		$compiled_data['total'] = $total + (int)$question_data['rating'];
-
 	}
 
 	return $compiled_data;
