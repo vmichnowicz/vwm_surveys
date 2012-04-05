@@ -18,7 +18,7 @@
 class Vwm_surveys_upd {
 
 	private $EE;
-	public $version = '0.3.7';
+	public $version = '0.4';
 
 	/**
 	 * Constructor
@@ -227,10 +227,9 @@ class Vwm_surveys_upd {
 
 		if ($current < '0.4')
 		{
-			// Make default value for page options NULL and default value for custom_order 0
+			// Add page description
 			$this->EE->db->query("
-				ALTER TABLE `{$prefix}vwm_surveys_questions`
-				ALTER TABLE `exp_vwm_surveys_pages` ADD `description` MEDIUMTEXT NOT NULL DEFAULT  ''
+				ALTER TABLE `{$prefix}vwm_surveys_pages` ADD `description` MEDIUMTEXT NOT NULL DEFAULT  ''
 			");
 		}
 

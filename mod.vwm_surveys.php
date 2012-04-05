@@ -261,6 +261,7 @@ class Vwm_surveys {
 			'total_pages' => $total_pages,
 			'current_page' => $current_page + 1, // $current_page is zero-index
 			'page_title' => $survey['pages'][ $current_page ]['title'],
+			'page_description' => $survey['pages'][ $current_page ]['description'],
 			'questions' => $questions
 		);
 		

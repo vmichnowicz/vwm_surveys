@@ -310,7 +310,9 @@ class Vwm_surveys_mcp {
 			{
 				// Get title for this page and attempt to update it
 				$page_title = trim($page['title']);
-				$this->EE->vwm_surveys_m->update_page($id, $page_number, $page_title);
+				$page_description = trim($page['description']);
+
+				$this->EE->vwm_surveys_m->update_page($id, $page_number, $page_title, $page_description);
 				
 				// Make sure this page has at least one question
 				if (isset($page['questions']))

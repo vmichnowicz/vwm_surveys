@@ -8,6 +8,10 @@ VWM Surveys is licensed under the [Apache 2 License](http://www.apache.org/licen
 
 ## Change Log
 
+### 0.4
+
+* Added page description textarea
+
 ### 0.3.7
 
 * Fixed undefined index bug with text and radio matrix questions when compiling survey results
