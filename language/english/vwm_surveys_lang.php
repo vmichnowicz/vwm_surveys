@@ -16,7 +16,7 @@ $lang = array(
 	// Module info
 	'vwm_surveys_module_name'				=> 'VWM Surveys',
 	'vwm_surveys_module_description'		=> 'Survey module with multiple question types.',
-	
+
 	// Module control panel
 	'vwm_surveys_add_survey'				=> 'Add Survey',
 	'vwm_surveys_edit_survey'				=> 'Edit Survey',
@@ -25,6 +25,11 @@ $lang = array(
 	'vwm_surveys_survey_submissions'		=> 'Survey Submissions',
 	'vwm_surveys_compile_survey_results'	=> 'Compile Survey Results',
 	'vwm_surveys_survey_results'			=> 'Survey Results',
+
+	// Rating
+	'vwm_surveys_rating_number'				=> 'Rating must be a number.',
+	'vwm_surveys_rating_min'				=> 'Rating must be at least %d.',
+	'vwm_surveys_rating_max'				=> 'Rating must be less than or equal to %d.',
 );
 
 // EOF
