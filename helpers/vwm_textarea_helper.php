@@ -6,25 +6,25 @@
  * @param int				Question ID
  * @param string			User-provided question data (in this case it is the text from the textarea)
  * @param array				Question options
- * @return type
+ * @return array
  */
 function vwm_textarea_validate($id, $input, $options)
 {
 	// Min & max length options
-	$min_length = $options['min_length'] != '' ? (int)$options['min_length'] : NULL;
-	$max_length = $options['max_length'] != '' ? (int)$options['max_length'] : NULL;
+	$min_length = empty($options['min_length']) ? NULL : (int)$options['min_length'];
+	$max_length = empty($options['max_length']) ? NULL : (int)$options['max_length'];
 
 	// The only user input is from the sole text input
 	$data['textarea'] = trim($input);
 
 	// Make sure our text is not too long
-	if ( strlen($data['textarea']) > $max_length )
+	if ( isset($max_length) AND strlen($data['textarea']) > $max_length )
 	{
 		$data['errors'][] = 'Textarea may not exceede ' . $max_length . ' characters';
 	}
 
 	// Make sure our text is not too short
-	if ( strlen($data['textarea']) < $min_length )
+	if ( isset($min_length) AND strlen($data['textarea']) < $min_length )
 	{
 		$data['errors'][] = 'Textarea must have at least ' . $min_length . ' characters';
 	}
@@ -44,7 +44,10 @@ function vwm_textarea_validate($id, $input, $options)
  */
 function vwm_textarea_compile_results($survey_id, $submission_id, $question_options, $question_data, $compiled_data)
 {
-	$compiled_data[ $submission_id ] = $question_data['textarea'];
+	if ( isset($question_data['textarea']) )
+	{
+		$compiled_data[ $submission_id ] = $question_data['textarea'];
+	}
 
 	return $compiled_data;
 }

@@ -13,6 +13,16 @@ VWM Surveys is licensed under the [Apache 2 License](http://www.apache.org/licen
 * Better breadcrumbs
 * Fixed bug related to viewing a survey by explicitly passing a survey ID
 
+### 0.3.7
+
+* Fixed undefined index bug with text and radio matrix questions when compiling survey results
+
+### 0.3.6
+
+* Fixed datepicker so it should now work after Ajax requests
+* Now using textarea for question title
+* Fixed undefined index bug with checkbox and radio questions when compiling survey results
+
 ### 0.3.5
 
 * Added URL encoding for checkbox, radio matrix, and radio question types

@@ -47,7 +47,8 @@ Edit survey
 	display: none;
 }
 
-.question_title input {
+.question_title textarea {
+	text-align: center;
 	color: #fff;
 	background-color: transparent;
 	margin: 0px;
@@ -57,7 +58,7 @@ Edit survey
 	text-shadow: 0px 1px 0px #666;
 }
 
-.question_title input:focus {
+.question_title textarea:focus {
 	margin: 0px;
 	padding: 0px;
 	border: 0px;
