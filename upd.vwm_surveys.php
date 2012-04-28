@@ -18,7 +18,7 @@
 class Vwm_surveys_upd {
 
 	private $EE;
-	public $version = '0.3.5';
+	public $version = '0.4';
 
 	/**
 	 * Constructor
@@ -49,11 +49,11 @@ class Vwm_surveys_upd {
 		);
 
 		$this->EE->db->insert('modules', $data);
-		
+
 		// Add submit_survey action to exp_actions
 		$submit_survey = array('class' => 'Vwm_surveys', 'method' => 'submit_survey');
 		$this->EE->db->insert('actions', $submit_survey);
-		
+
 		// Get database prefix
 		$prefix = $this->EE->db->dbprefix;
 
@@ -72,7 +72,7 @@ class Vwm_surveys_upd {
 				KEY `survey_id` (`survey_id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 		");
-		
+
 		// Table to store surveys
 		$this->EE->db->query("
 			CREATE TABLE IF NOT EXISTS `{$prefix}vwm_surveys_surveys` (
@@ -86,7 +86,7 @@ class Vwm_surveys_upd {
 				UNIQUE KEY `hash` (`hash`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 		");
-		
+
 		// Table to store survey pages
 		$this->EE->db->query("
 			CREATE TABLE IF NOT EXISTS `{$prefix}vwm_surveys_pages` (
@@ -124,7 +124,7 @@ class Vwm_surveys_upd {
 				PRIMARY KEY (`survey_id`)
 			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 		");
-		
+
 		return TRUE;
 	}
 
@@ -138,7 +138,7 @@ class Vwm_surveys_upd {
 	{
 		// Get database prefix
 		$prefix = $this->EE->db->dbprefix;
-		
+
 		// Get module ID
 		$module_id = $this->EE->db
 			->select('module_id')
@@ -146,7 +146,7 @@ class Vwm_surveys_upd {
 			->limit(1)
 			->get('modules')
 			->row('module_id');
-		
+
 		// Delete from modules
 		$this->EE->db
 			->where('module_id', $module_id)
@@ -168,7 +168,7 @@ class Vwm_surveys_upd {
 		$this->EE->db->query("DROP TABLE {$prefix}vwm_surveys_pages");
 		$this->EE->db->query("DROP TABLE {$prefix}vwm_surveys_submissions");
 		$this->EE->db->query("DROP TABLE {$prefix}vwm_surveys_results");
-		
+
 		return TRUE;
 	}
 
@@ -226,7 +226,7 @@ class Vwm_surveys_upd {
 
 		return TRUE;
 	}
-	
+
 }
 
 // EOF

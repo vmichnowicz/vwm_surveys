@@ -467,7 +467,7 @@ class Vwm_surveys_mcp {
 		$survey_id = (int)$this->EE->input->get('survey_id');
 
 		// If this survey exists and it has compiled results
-		if ( $survey = $this->EE->vwm_surveys_m->get_survey($id) AND $results = $this->EE->vwm_surveys_results_m->get_survey_results($survey_id) )
+		if ( $survey = $this->EE->vwm_surveys_m->get_survey($survey_id) AND $results = $this->EE->vwm_surveys_results_m->get_survey_results($survey_id) )
 		{
 			// Add breadcrumbs
 			$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
