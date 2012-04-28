@@ -12,6 +12,7 @@ VWM Surveys is licensed under the [Apache 2 License](http://www.apache.org/licen
 
 * Better breadcrumbs
 * Fixed bug related to viewing a survey by explicitly passing a survey ID
+* Added ability to remove survey submissions
 
 ### 0.3.7
 
