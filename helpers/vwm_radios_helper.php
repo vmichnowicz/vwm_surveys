@@ -23,7 +23,7 @@ function vwm_radios_preprocess($options)
  * @param int				Question ID
  * @param array				User-provided question data
  * @param array				Question options
- * @return type
+ * @return array
  */
 function vwm_radios_validate($id, $input, $options)
 {
@@ -85,13 +85,17 @@ function vwm_radios_compile_results($survey_id, $submission_id, $question_option
 			$compiled_data[ $key ]['count'] = $count++;
 		}
 
-		$compiled_data[ $question_data['option'] ]['count']++;
-
-		// If this selection has "other" text
-		if ( isset($question_data['other']) )
+		// Make sure this is a current option (removed options will be ignored)
+		if ( isset($compiled_data[ $question_data['option'] ]['count']) )
 		{
-			// Add this "other" text to the compiled data
-			$compiled_data[ $question_data['option'] ]['other'][ $submission_id ] = $question_data['other'];
+			$compiled_data[ $question_data['option'] ]['count']++;
+
+			// If this selection has "other" text
+			if ( isset($question_data['other']) )
+			{
+				// Add this "other" text to the compiled data
+				$compiled_data[ $question_data['option'] ]['other'][ $submission_id ] = $question_data['other'];
+			}
 		}
 
 	}

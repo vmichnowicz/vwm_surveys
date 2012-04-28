@@ -19,7 +19,7 @@
 
 										<p><?php echo $x_value['text']; ?> (<?php echo $results[ $y_key ][ $x_key ]['count']; ?> Votes)</p>
 										<div class="bar" style="width: <?php echo $percent; ?>%">
-											<span><?php echo $percent; ?>%</span>
+											<span><?php echo round($percent, 1); ?>%</span>
 										</div>
 									</li>
 								<?php endforeach; ?>	
