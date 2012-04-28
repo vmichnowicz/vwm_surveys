@@ -49,6 +49,41 @@ class Vwm_surveys_submissions_m extends CI_Model {
 	}
 
 	/**
+	 * Delete an individual survey submission
+	 *
+	 * @access public
+	 * @param int				Survey submission ID
+	 * @return bool
+	 */
+	public function delete_survey_submission($id)
+	{
+		if ( isset($id) )
+		{
+			$this->db->delete('vwm_surveys_submissions', array('id' => $id));
+		}
+		elseif ( isset($survey_id) )
+		{
+			$this->db->delete('vwm_surveys_submissions', array('survey_id' => $id));
+		}
+
+		return $this->db->affected_rows() > 0 ? TRUE : FALSE;
+	}
+
+	/**
+	 * Delete all survey submissions for a particular survey
+	 *
+	 * @access public
+	 * @param int				Survey ID
+	 * @return bool
+	 */
+	public function delete_survey_submissions($survey_id)
+	{
+		$this->db->delete('vwm_surveys_submissions', array('survey_id' => $survey_id));
+
+		return $this->db->affected_rows() > 0 ? TRUE : FALSE;
+	}
+
+	/**
 	 * Update a previously created survey
 	 *
 	 * @access public

@@ -17,7 +17,7 @@
  */
 class Vwm_surveys {
 
-	private $EE;
+	private $EE, $survey_id, $hash;
 	private static $question_types = array();
 	private static $submission_hashes = NULL;
 
@@ -41,11 +41,37 @@ class Vwm_surveys {
 		$this->EE->load->helper('vwm_surveys');
 		$this->EE->load->model(array('vwm_surveys_m', 'vwm_surveys_submissions_m'));
 
-		// Load config files for all question types
-		foreach ( $this->get_question_types() as $slug => $name)
+		// Make sure we are able to grab our question types from the config file
+		if ( is_array($this->get_question_types()) AND count($this->get_question_types() > 0) )
 		{
-			$this->EE->load->helper('vwm_' . $slug);
+			// Load config files for all question types
+			foreach ( $this->get_question_types() as $slug => $name)
+			{
+				$this->EE->load->helper('vwm_' . $slug);
+			}
 		}
+		else
+		{
+			throw new Exception('Unable to load VWM Surveys question types from config file.');
+		}
+	}
+
+	/**
+	 * Get the hash
+	 *
+	 * If the hash is not yet set, attempt to set it
+	 *
+	 * @access private
+	 * @return null | string
+	 */
+	private function get_hash()
+	{
+		if ( ! isset($this->hash) )
+		{
+			$this->set_hash();
+		}
+
+		return $this->hash;
 	}
 
 	/**
@@ -68,12 +94,28 @@ class Vwm_surveys {
 	}
 
 	/**
+	 * Get the survey ID
+	 *
+	 * @access private
+	 * @return null | int
+	 */
+	private function get_survey_id()
+	{
+		if ( ! isset($this->survey_id) )
+		{
+			$this->set_survey_id();
+		}
+
+		return $this->survey_id;
+	}
+
+	/**
 	 * Get submission hashes from users cookies and then return them all
 	 *
 	 * @access private
 	 * @return array
 	 */
-	private function submission_hashes()
+	private function get_submission_hashes()
 	{
 		// If our submission hashes have not yet been gathered
 		if ( self::$submission_hashes == NULL)
@@ -81,7 +123,7 @@ class Vwm_surveys {
 			$hashes = array();
 
 			// If the user has this cookie set
-			if (isset($_COOKIE['vwm_surveys_survey_submissions']))
+			if ( isset($_COOKIE['vwm_surveys_survey_submissions']) )
 			{
 				if ( $cookie = $_COOKIE['vwm_surveys_survey_submissions'] )
 				{
@@ -96,6 +138,93 @@ class Vwm_surveys {
 		return self::$submission_hashes;
 	}
 
+	/*
+	 * Set hash
+	 *
+	 * @access private
+	 * @param string
+	 * @return object
+	 */
+	private function set_hash($param_hash = NULL)
+	{
+		if ( isset($param_hash) )
+		{
+			$this->hash = $param_hash;
+		}
+		else {
+			$survey_id_or_hash = $this->EE->TMPL->fetch_param('survey_id_or_hash');
+			$hash = strlen( $this->EE->TMPL->fetch_param('hash') );
+			$uri_array = $this->EE->uri->segment_array();
+
+			if ( strlen($hash) === 32 && ctype_alnum($hash) )
+			{
+				$this->hash = $hash;
+
+				goto set_hash;
+			}
+			elseif ( strlen($survey_id_or_hash) === 32 && ctype_alnum($survey_id_or_hash) )
+			{
+				$this->hash = $survey_id_or_hash;
+
+				goto set_hash;
+			}
+			elseif ( ( ! empty($uri_array) ) AND is_array($uri_array) )
+			{
+				foreach ($uri_array as $segment)
+				{
+					if ( strlen($segment) === 32 && ctype_alnum($segment) )
+					{
+						$this->hash = $segment;
+
+						goto set_hash;
+					}
+				}
+			}
+		}
+
+		set_hash:
+
+		return $this;
+	}
+
+	/*
+	 * Set survey ID
+	 *
+	 * @access private
+	 * @param int
+	 * @return object
+	 */
+	private function set_survey_id($param_survey_id = NULL)
+	{
+		if ( isset($param_survey_id) )
+		{
+			$this->survey_id = $param_survey_id;
+		}
+		else
+		{
+			$survey_id_or_hash = $this->EE->TMPL->fetch_param('survey_id_or_hash');
+			$survey_id = $this->EE->TMPL->fetch_param('survey_id');
+
+			if ( ( ! empty($survey_id) AND ctype_digit($survey_id)) )
+			{
+				$this->survey_id = (int)$survey_id;
+
+				goto set_survey_id;
+			}
+			elseif ( ( ! empty($survey_id_or_hash) ) AND ctype_digit($survey_id_or_hash) )
+			{
+				$this->survey_id = (int)$survey_id_or_hash;
+
+				goto set_survey_id;
+			}
+		}
+
+		// O crap, I think I hear a dino...
+		set_survey_id:
+
+		return $this;
+	}
+
 	/**
 	 * Display all surveys with EE template code
 	 *
@@ -107,8 +236,8 @@ class Vwm_surveys {
 	public function surveys()
 	{
 		$surveys = array();
-		$user_progress = $this->EE->vwm_surveys_submissions_m->user_submissions_progress( $this->submission_hashes() );
-		$user_complete = $this->EE->vwm_surveys_submissions_m->user_submissions_complete( $this->submission_hashes() );
+		$user_progress = $this->EE->vwm_surveys_submissions_m->user_submissions_progress( $this->get_submission_hashes() );
+		$user_complete = $this->EE->vwm_surveys_submissions_m->user_submissions_complete( $this->get_submission_hashes() );
 
 		// Loop through all surveys
 		foreach ($this->EE->vwm_surveys_m->get_surveys() as $survey)
@@ -142,24 +271,18 @@ class Vwm_surveys {
 	 */
 	public function survey()
 	{
-		// Get all EE template parameters
-		$survey_id_or_hash = $this->EE->TMPL->fetch_param('survey_id_or_hash');
-		$hash = $this->EE->TMPL->fetch_param('hash');
-		$survey_id = (int)$this->EE->TMPL->fetch_param('survey_id');
 		$redirect = $this->EE->TMPL->fetch_param('redirect') ? $this->EE->functions->create_url( $this->EE->TMPL->fetch_param('redirect') ) : NULL;
 
 		// The page of the survey we want to display (default to the first page - 0)
 		$current_page = 0;
 
 		// See if we have a hash indicating this user has progress for this survey
-		if (strlen($survey_id_or_hash) == 32 OR strlen($hash) == 32)
+		if ( $this->get_hash() )
 		{
-			$hash = strlen($survey_id_or_hash) == 32 ? $survey_id_or_hash : $hash;
-
 			// If the hash is valid
-			if ( $submission = $this->EE->vwm_surveys_submissions_m->get_survey_submission($hash) )
+			if ( $submission = $this->EE->vwm_surveys_submissions_m->get_survey_submission( $this->get_hash() ) )
 			{
-				$survey_id = (int)$submission['survey_id'];
+				$this->set_survey_id( $submission['survey_id'] );
 				
 				// Make sure this user has not already completed this survey
 				if ( $submission['complete'] ) { show_error('You have already completed this survey.'); }
@@ -199,11 +322,8 @@ class Vwm_surveys {
 		// Since we do not have a user-provided hash we will have to rely on the supplied survey ID
 		else
 		{
-			$hash = NULL;
-			$survey_id = $survey_id ? $survey_id : (int)$survey_id_or_hash;
-			
 			// Make sure this survey exists
-			if ( $survey = $this->EE->vwm_surveys_m->get_survey($survey_id) )
+			if ( $survey = $this->EE->vwm_surveys_m->get_survey( $this->get_survey_id() ) )
 			{
 				$total_pages = count($survey['pages']);
 			}
@@ -240,6 +360,8 @@ class Vwm_surveys {
 			 * 
 			 * '../third_party/vwm_surveys/views/questions_view/vwm_' . $question['type'] . '_view' // EE 2.1
 			 * 'questions_view/vwm_' . $question['type'] . '_view' // EE 2.2 onwards
+			 *
+			 * @todo There really should be a better way to do this...
 			 */
 			$view_file = $this->EE->config->item('app_version') <= 213 ? '../third_party/vwm_surveys/views/' : '';
 			$view_file .= 'questions_view/vwm_' . $question['type'] . '_view';
@@ -256,8 +378,8 @@ class Vwm_surveys {
 			'id' => $survey['id'],
 			'title' => $survey['title'],
 			'in_allowed_group' => $this->is_allowed_group($survey['allowed_groups']),
-			'complete' => $this->is_complete($survey_id),
-			'progress' => $this->is_progress($survey_id), // Returns a submission hash if there is progress with this survey
+			'complete' => $this->is_complete( $this->get_survey_id() ),
+			'progress' => $this->is_progress( $this->get_survey_id() ), // Returns a submission hash if there is progress with this survey
 			'total_pages' => $total_pages,
 			'current_page' => $current_page + 1, // $current_page is zero-index
 			'page_title' => $survey['pages'][ $current_page ]['title'],
@@ -266,16 +388,16 @@ class Vwm_surveys {
 		
 		// Set hidden fields, class, and ID for our form
 		$form_data = array(
-			'id' => 'vwm_surveys_survey_' . $survey_id,
+			'id' => 'vwm_surveys_survey_' .  $this->get_survey_id() ,
 			'class' => 'vwm_surveys_survey',
 			'hidden_fields' => array(
 				'ACT' => $this->EE->functions->fetch_action_id('Vwm_surveys', 'submit_survey'),
 				'RET' => $this->EE->TMPL->fetch_param('return') ? $this->EE->TMPL->fetch_param('return') : NULL,
 				'URI' => $this->EE->uri->uri_string ? $this->EE->uri->uri_string : 'index',
 				'save_survey' => $this->EE->functions->fetch_action_id('Vwm_surveys', 'save_survey'),
-				'survey_id' => $survey_id,
+				'survey_id' =>  $this->get_survey_id() ,
 				'current_page' => $current_page,
-				'hash' => $hash,
+				'hash' => $this->get_hash(),
 				'redirect' => $redirect
 			)
 		);
@@ -580,20 +702,24 @@ class Vwm_surveys {
 	{
 		$return = '';
 
-		if ($errors)
+		if ( ! empty($errors) AND is_array($errors) )
 		{
 			foreach ($errors as $question_id => $question_errors)
 			{
 				// List question title
 				$return .= '<h4>' . htmlentities($questions[ $question_id ]['title'], ENT_QUOTES, 'UTF-8') . '</h4><ul>';
 
-				// List error(s) for this particular question
-				foreach ($question_errors as $error)
+				if ( ! empty($question_errors) AND is_array($question_errors) )
 				{
-					$return .= '<li>' . htmlentities($error, ENT_QUOTES, 'UTF-8') . '</li>';
+					// List error(s) for this particular question
+					foreach ($question_errors as $error)
+					{
+						$return .= '<li>' . htmlentities($error, ENT_QUOTES, 'UTF-8') . '</li>';
+					}
 				}
 
 				$return .= '</ul>';
+
 			}
 		}
 		return $return;
@@ -635,7 +761,7 @@ class Vwm_surveys {
 	private function is_progress($survey_id)
 	{
 		// If we have submission hashes and one of those submission hashes shows survey progress
-		if ( $this->submission_hashes() AND $hash = $this->EE->vwm_surveys_submissions_m->is_progress_by_hashes($survey_id, $this->submission_hashes()) )
+		if ( $this->get_submission_hashes() AND $hash = $this->EE->vwm_surveys_submissions_m->is_progress_by_hashes($survey_id, $this->get_submission_hashes()) )
 		{
 			return $hash;
 		}
@@ -660,7 +786,7 @@ class Vwm_surveys {
 	private function is_complete($survey_id)
 	{
 		// If we have submission hashes and one of those submission hashes shows a complete survey
-		if ( $this->submission_hashes() AND $this->EE->vwm_surveys_submissions_m->is_complete_by_hashes($survey_id, $this->submission_hashes()) )
+		if ( $this->get_submission_hashes() AND $this->EE->vwm_surveys_submissions_m->is_complete_by_hashes($survey_id, $this->get_submission_hashes()) )
 		{
 			return TRUE;
 		}

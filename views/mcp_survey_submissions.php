@@ -36,14 +36,14 @@
 
 		<div class="input">
 			<label for="filter_created_from">Created from:</label>
-			<input type="text" name="filter_created_from" id="filter_created_from" class="datepicker" value="<?php echo $filters['created_from'] ? $filters['created_from'] : NULL; ?>" />
-			to <input type="text" name="filter_created_to" id="filter_created_to" class="datepicker" value="<?php echo $filters['created_to'] ? $filters['created_to'] : NULL; ?>" />
+			<input type="text" name="filter_created_from" id="filter_created_from" class="datepicker" value="<?php echo $filters['created_from'] ? htmlspecialchars($filters['created_from'], ENT_QUOTES, 'UTF-8') : NULL; ?>" />
+			to <input type="text" name="filter_created_to" id="filter_created_to" class="datepicker" value="<?php echo $filters['created_to'] ? htmlspecialchars($filters['created_to'], ENT_QUOTES, 'UTF-8') : NULL; ?>" />
 		</div>
 
 		<div class="input">
 			<label for="filter_updated_from">Updated from:</label>
-			<input type="text" name="filter_updated_from" id="filter_updated_from" class="datepicker" value="<?php echo $filters['updated_from'] ? $filters['updated_from'] : NULL; ?>" />
-			to <input type="text" name="filter_updated_to" id="filter_updated_to" class="datepicker" value="<?php echo $filters['updated_to'] ? $filters['updated_to'] : NULL; ?>" />
+			<input type="text" name="filter_updated_from" id="filter_updated_from" class="datepicker" value="<?php echo $filters['updated_from'] ? htmlspecialchars($filters['updated_from'], ENT_QUOTES, 'UTF-8') : NULL; ?>" />
+			to <input type="text" name="filter_updated_to" id="filter_updated_to" class="datepicker" value="<?php echo $filters['updated_to'] ? htmlspecialchars($filters['updated_to'], ENT_QUOTES, 'UTF-8') : NULL; ?>" />
 		</div>
 
 		<div class="input">
@@ -89,7 +89,6 @@
 
 	</fieldset>
 
-
 <?php echo form_close(); ?>
 
 <br />
@@ -110,7 +109,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		<?php if ($submissions): ?>
+		<?php if ( ! empty($submissions) ): ?>
 			<?php foreach ($submissions as $submission): ?>
 				<tr>
 					<td><?php echo $submission['id']; ?></td>
@@ -122,9 +121,16 @@
 					<td><?php echo $submission['updated'] ? date('l F jS Y @ g:ia', $submission['updated']) : NULL; ?></td>
 					<td><?php echo $submission['completed'] ? date('l F jS Y @ g:ia', $submission['completed']) : NULL; ?></td>
 					<td><?php echo $submission['complete'] ? '<span class="yes">Yes</span>' : '<span class="no">No</span>'; ?></td>
-					<td><a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=survey_submission' . AMP . 'hash=' . $submission['hash']; ?>" class="submit">View Individual Survey</a></td>
+					<td style="text-align: center;">
+						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=survey_submission' . AMP . 'hash=' . $submission['hash']; ?>" class="submit">View Individual Survey</a>
+						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=delete_survey_submission' . AMP . 'id=' . $submission['id']; ?>" class="submit">Delete Submission</a>
+					</td>
 				</tr>
 			<?php endforeach; ?>
+		<?php else: ?>
+				<tr>
+					<td colspan="10">No survey submissions.</td>
+				</tr>
 		<?php endif; ?>
 	</tbody>
 </table>

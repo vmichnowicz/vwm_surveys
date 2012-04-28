@@ -19,7 +19,7 @@ class Vwm_surveys_mcp {
 
 	private $EE;
 	private static $question_types = array();
-	
+
 	/**
 	 * Load all of our models, helpers, config file, and add JS and CSS to page
 	 * 
@@ -33,13 +33,13 @@ class Vwm_surveys_mcp {
 
 		// Make damn sure module path is defined
 		$this->EE->load->add_package_path(PATH_THIRD . 'vwm_surveys/');
-		
+
 		// Load models
 		$this->EE->load->model(array('vwm_surveys_m', 'vwm_surveys_submissions_m', 'vwm_surveys_results_m'));
 
 		// Load config
 		$this->EE->config->load('vwm_surveys');
-		
+
 		// Add JavaScript & CSS
 		$this->EE->cp->add_to_head('<script type="text/javascript">EE.CP_URL = "' . $this->EE->config->item('cp_url') . '";</script>');
 		$this->EE->cp->load_package_js('mcp');
@@ -48,10 +48,18 @@ class Vwm_surveys_mcp {
 		// Load main helper
 		$this->EE->load->helper('vwm_surveys');
 
-		// Load config files for all question types
-		foreach ( $this->get_question_types() as $slug => $name)
+		// Make sure we are able to grab our question types from the config file
+		if ( is_array($this->get_question_types()) AND count($this->get_question_types() > 0) )
 		{
-			$this->EE->load->helper('vwm_' . $slug);
+			// Load config files for all question types
+			foreach ( $this->get_question_types() as $slug => $name)
+			{
+				$this->EE->load->helper('vwm_' . $slug);
+			}
+		}
+		else
+		{
+			throw new Exception('Unable to load VWM Surveys question types from config file.');
 		}
 	}
 
@@ -67,7 +75,7 @@ class Vwm_surveys_mcp {
 		// If our question types have not yet been loaded
 		if ( ! self::$question_types )
 		{
-			// Get question types from config file
+			// Get question types from config file (system/expressionengine/third_party/vwm_surveys/config/vwm_surveys.php)
 			self::$question_types = $this->EE->config->item('vwm_surveys_question_types');
 		}
 
@@ -84,7 +92,7 @@ class Vwm_surveys_mcp {
 	{
 		// Page title
 		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('vwm_surveys_module_name'));
-		
+
 		// Top-right navigation buttons
 		$this->EE->cp->set_right_nav(array(
 			'vwm_surveys_add_survey' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP .'method=add_survey',
@@ -93,10 +101,6 @@ class Vwm_surveys_mcp {
 
 		// Data to get passed to view
 		$data = array(
-			'survey_results_url' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=survey_results' . AMP . 'survey_id=', // Just add survey ID!
-			'compile_survey_results_url' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=compile_survey_results' . AMP . 'survey_id=', // Just add survey ID!
-			'edit_url' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=edit_survey' . AMP . 'survey_id=', // Just add survey ID!
-			'delete_url' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=delete_survey' . AMP . 'survey_id=', // Just add survey ID!
 			'surveys' => $this->EE->vwm_surveys_m->get_surveys() // All surveys
 		);
 
@@ -111,11 +115,8 @@ class Vwm_surveys_mcp {
 	 */
 	public function survey_submission()
 	{
-		// Page title
+		// Title
 		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('vwm_surveys_survey_submission'));
-
-		// Add breadcrumb
-		$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
 
 		// Top-right navigation buttons
 		$this->EE->cp->set_right_nav(array(
@@ -128,9 +129,13 @@ class Vwm_surveys_mcp {
 		$submission_id = $this->EE->input->get('submission_id');
 
 		// If this is a valid survey submission
-		if( $submission = $this->EE->vwm_surveys_submissions_m->get_survey_submission($hash, $submission_id) )
+		if ( $submission = $this->EE->vwm_surveys_submissions_m->get_survey_submission($hash, $submission_id) )
 		{
 			$survey = $this->EE->vwm_surveys_m->get_survey( $submission['survey_id'] );
+
+			// Breadcrumbs
+			$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
+			$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=edit_survey' . AMP . 'survey_id=' . $survey['id'], htmlspecialchars($survey['title'], ENT_QUOTES, 'UTF-8'));
 
 			$data = array(
 				'survey' => $survey,
@@ -152,12 +157,12 @@ class Vwm_surveys_mcp {
 	 */
 	public function survey_submissions()
 	{
-		// Page title
+		// Title
 		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('vwm_surveys_survey_submissions'));
 
-		// Add breadcrumb
+		// Breadcrumb
 		$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
-	
+
 		// Top-right navigation buttons
 		$this->EE->cp->set_right_nav(array(
 			'vwm_surveys_add_survey' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP .'method=add_survey',
@@ -209,11 +214,11 @@ class Vwm_surveys_mcp {
 		if ( $title = trim($this->EE->input->post('title')) )
 		{
 			// Add survey to database and get its ID back
-			$id = $this->EE->vwm_surveys_m->insert_survey($title);
-			
+			$survey_id = $this->EE->vwm_surveys_m->insert_survey($title);
+
 			// Great success!
 			$this->EE->session->set_flashdata('message_success', 'Survey added!');
-			
+
 			// Redirect to main module page where all surveys are visible
 			$this->EE->functions->redirect(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys');
 		}
@@ -237,7 +242,7 @@ class Vwm_surveys_mcp {
 			return $this->EE->load->view('mcp_add_survey', $data, TRUE);
 		}
 	}
-	
+
 	/**
 	 * Edit a survey CP page
 	 * 
@@ -246,14 +251,22 @@ class Vwm_surveys_mcp {
 	 */
 	public function edit_survey()
 	{
-		// Get survey ID from the GET data
+		// Get survey ID and survey data
 		$survey_id = $this->EE->input->get('survey_id');
-		
-		// Page title
+		$survey = $this->EE->vwm_surveys_m->get_survey_details($survey_id);
+
+		// Title
 		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('vwm_surveys_edit_survey'));
-		
-		// Add breadcrumb
+
+		// Breadcrumbs
 		$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
+		$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=edit_survey' . AMP . 'survey_id=' . $survey_id, htmlspecialchars($survey['title'], ENT_QUOTES, 'UTF-8'));
+
+		// Top-right navigation buttons
+		$this->EE->cp->set_right_nav(array(
+			'vwm_surveys_add_survey' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP .'method=add_survey',
+			'vwm_surveys_survey_submissions' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP .'method=survey_submissions'
+		));
 
 		// jQuery UI
 		$this->EE->cp->add_js_script(
@@ -271,7 +284,7 @@ class Vwm_surveys_mcp {
 		// See if this survey has any submissions
 		$submissions = $this->EE->vwm_surveys_submissions_m->get_survey_submissions(array('survey_id' => $survey_id));
 
-		$data = $this->EE->vwm_surveys_m->get_survey_details($survey_id);
+		$data = $survey;
 		$data['action_url'] = 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=update_survey';
 		$data['pages'] = $this->EE->vwm_surveys_m->get_questions_by_page($survey_id);
 		$data['question_types'] = $this->get_question_types();
@@ -294,7 +307,7 @@ class Vwm_surveys_mcp {
 	 */
 	public function update_survey()
 	{
-		$id = $this->EE->input->post('vwm_surveys_id');
+		$survey_id = $this->EE->input->post('vwm_surveys_id');
 		$title = trim($this->EE->input->post('vwm_surveys_title'));
 		$allowed_groups = in_array( $this->EE->input->post('vwm_surveys_allowed_groups'), array('A', 'NULL') ) ? $this->EE->input->post('vwm_surveys_allowed_groups') : $this->EE->input->post('vwm_surveys_select_allowed_groups');
 		$pages = $this->EE->input->post('vwm_surveys_pages');
@@ -303,15 +316,15 @@ class Vwm_surveys_mcp {
 		if ($title AND $pages)
 		{
 			// Update the survey title and last updated date
-			$this->EE->vwm_surveys_m->update_survey($id, $title, $allowed_groups);
-			
+			$this->EE->vwm_surveys_m->update_survey($survey_id, $title, $allowed_groups);
+
 			// Loop through each page
 			foreach ($pages as $page_number => $page)
 			{
 				// Get title for this page and attempt to update it
 				$page_title = trim($page['title']);
-				$this->EE->vwm_surveys_m->update_page($id, $page_number, $page_title);
-				
+				$this->EE->vwm_surveys_m->update_page($survey_id, $page_number, $page_title);
+
 				// Make sure this page has at least one question
 				if (isset($page['questions']))
 				{
@@ -335,7 +348,7 @@ class Vwm_surveys_mcp {
 						{
 							// Set new question properties in model
 							$this->EE->vwm_surveys_m
-								->set_survey_id($id)
+								->set_survey_id($survey_id)
 								->set_page($page_number)
 								->set_question_title( trim($question['title']) )
 								->set_question_type( $question['type'] )
@@ -361,12 +374,12 @@ class Vwm_surveys_mcp {
 	 */
 	public function delete_survey()
 	{
-		$id = (int)$this->EE->input->get('survey_id');
+		$survey_id = (int)$this->EE->input->get('survey_id');
 
-		if ($id)
+		if ($survey_id)
 		{
-			$this->EE->vwm_surveys_m->delete_survey($id);
-			
+			$this->EE->vwm_surveys_m->delete_survey($survey_id);
+
 			// Great success!
 			$this->EE->session->set_flashdata('message_success', 'Survey removed!');
 		}
@@ -374,6 +387,60 @@ class Vwm_surveys_mcp {
 		{
 			// Survey not deleted
 			$this->EE->session->set_flashdata('message_failure', 'Survey not removed - try passing a survey ID next time smartass.');
+		}
+
+		$this->EE->functions->redirect(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys');
+	}
+
+	/**
+	 * Delete an individual survey submission
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function delete_survey_submission()
+	{
+		$survey_id = (int)$this->EE->input->get('id');
+
+		if ($survey_id)
+		{
+			if ( $this->EE->vwm_surveys_submissions_m->delete_survey_submission($survey_id) === TRUE )
+			{
+				// Great success!
+				$this->EE->session->set_flashdata('message_success', 'Survey submission removed.');
+			}
+			else
+			{
+				// Survey submission not deleted
+				$this->EE->session->set_flashdata('message_failure', 'Survey submission not removed.');
+			}
+		}
+
+		$this->EE->functions->redirect(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=survey_submissions');
+	}
+
+	/**
+	 * Delete all survey submissions associated with a given survey
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function delete_survey_submissions()
+	{
+		$survey_id = (int)$this->EE->input->get('survey_id');
+
+		if ($survey_id)
+		{
+			if ( $this->EE->vwm_surveys_submissions_m->delete_survey_submissions($survey_id) === TRUE )
+			{
+				// Great success!
+				$this->EE->session->set_flashdata('message_success', 'Survey submissions removed.');
+			}
+			else
+			{
+				// Survey submission not deleted
+				$this->EE->session->set_flashdata('message_failure', 'Survey submissions not removed.');
+			}
 		}
 
 		$this->EE->functions->redirect(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys');
@@ -390,17 +457,24 @@ class Vwm_surveys_mcp {
 		// Page title
 		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('vwm_surveys_survey_results'));
 
-		// Add breadcrumb
-		$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
+		// Top-right navigation buttons
+		$this->EE->cp->set_right_nav(array(
+			'vwm_surveys_add_survey' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP .'method=add_survey',
+			'vwm_surveys_survey_submissions' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP .'method=survey_submissions'
+		));
 
 		// Get this surveys ID
-		$id = (int)$this->EE->input->get('survey_id');
+		$survey_id = (int)$this->EE->input->get('survey_id');
 
 		// If this survey exists and it has compiled results
-		if ( $survey = $this->EE->vwm_surveys_m->get_survey($id) AND $results = $this->EE->vwm_surveys_results_m->get_survey_results($id) )
+		if ( $survey = $this->EE->vwm_surveys_m->get_survey($survey_id) AND $results = $this->EE->vwm_surveys_results_m->get_survey_results($survey_id) )
 		{
+			// Add breadcrumbs
+			$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
+			$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=edit_survey' . AMP . 'survey_id=' . $survey_id, htmlspecialchars($survey['title'], ENT_QUOTES, 'UTF-8'));
+
 			// Check for any completed survey submissions since this survey was compiled
-			$new_completed_submissions = count($this->EE->vwm_surveys_submissions_m->get_completed_survey_submissions($id, $results['compiled']));
+			$new_completed_submissions = count($this->EE->vwm_surveys_submissions_m->get_completed_survey_submissions($survey_id, $results['compiled']));
 
 			$data = array(
 				'survey' => $survey,
@@ -420,16 +494,22 @@ class Vwm_surveys_mcp {
 	 */
 	public function compile_survey_results()
 	{
-		// Page title
+		$survey_id = (int)$this->EE->input->get('survey_id');
+		$survey = $this->EE->vwm_surveys_m->get_survey($survey_id);
+		$submissions = $this->EE->vwm_surveys_submissions_m->get_completed_survey_submissions($survey_id);
+
+		// Title
 		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('vwm_surveys_compile_survey_results'));
 
-		// Add breadcrumb
+		// Breadcrumb
 		$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
+		$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=edit_survey' . AMP . 'survey_id=' . $survey_id, htmlspecialchars($survey['title'], ENT_QUOTES, 'UTF-8'));
 
-		$id = (int)$this->EE->input->get('survey_id');
-
-		$survey = $this->EE->vwm_surveys_m->get_survey($id);
-		$submissions = $this->EE->vwm_surveys_submissions_m->get_completed_survey_submissions($id);
+		// Top-right navigation buttons
+		$this->EE->cp->set_right_nav(array(
+			'vwm_surveys_add_survey' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP .'method=add_survey',
+			'vwm_surveys_survey_submissions' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP .'method=survey_submissions'
+		));
 
 		$compiled_data = array();
 
@@ -451,15 +531,15 @@ class Vwm_surveys_mcp {
 					$submission['data'][ $question['id'] ] = isset($submission['data'][ $question['id'] ]) ? $submission['data'][ $question['id'] ] : array();
 
 					// Run the compile function
-					$compiled_data[ $question['id'] ] = $compile_function($id, $submission_id, $question['options'], $submission['data'][ $question['id'] ], $compiled_data[ $question['id'] ]);
+					$compiled_data[ $question['id'] ] = $compile_function($survey_id, $submission_id, $question['options'], $submission['data'][ $question['id'] ], $compiled_data[ $question['id'] ]);
 				}
 			}
 		}
 
-		$this->EE->vwm_surveys_results_m->insert_survey_results($id, $compiled_data, count($submissions));
+		$this->EE->vwm_surveys_results_m->insert_survey_results($survey_id, $compiled_data, count($submissions));
 
 		$data['survey_results_url'] = BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=survey_results' . AMP . 'survey_id=' . $survey['id'];
-		
+
 		return $this->EE->load->view('mcp_compile_survey_results', $data, TRUE);
 	}
 	
@@ -545,9 +625,9 @@ class Vwm_surveys_mcp {
 	{
 		$question_id = (int)$this->EE->input->get('question_id');
 		$move = $this->EE->input->get('move');
-		
+
 		$this->EE->vwm_surveys_m->update_question_order($question_id, $move);
-		
+
 		die( $this->edit_survey() );
 	}
 
@@ -587,7 +667,7 @@ class Vwm_surveys_mcp {
 	{
 		$survey_id = (int)$this->EE->input->get('survey_id');
 		$page = (int)$this->EE->input->get('page');
-		
+
 		return $this->EE->vwm_surveys_m->delete_page($survey_id, $page);
 	}
 
