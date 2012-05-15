@@ -55,12 +55,9 @@ function vwm_rating_validate($id, $input, $options)
  */
 function vwm_rating_compile_results($survey_id, $submission_id, $question_options, $question_data, $compiled_data)
 {
-	
-
 	$total = isset($compiled_data['total']) ? (int)$compiled_data['total']  : 0;
 	$min = array_key_exists('min', $compiled_data) ? $compiled_data['min']  : NULL;
 	$max = array_key_exists('max', $compiled_data) ? $compiled_data['max']  : NULL;
-
 
 	if ( isset( $question_data['rating'] ) )
 	{
