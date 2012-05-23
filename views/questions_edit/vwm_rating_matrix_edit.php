@@ -29,13 +29,20 @@
 	</ul>
 </div>
 
-<label>Minimum Value: <input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][min]" value="<?php echo isset($options['min']) ? (int)$options['min'] : 0; ?>" /></label>
-<label>Maximum Value: <input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][max]" value="<?php echo isset($options['max']) ? (int)$options['max'] : NULL; ?>" /></label>
+<label>Minimum Value: <input type="text" class="min" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][min]" value="<?php echo isset($options['min']) ? (int)$options['min'] : 0; ?>" /></label>
+<label>Maximum Value: <input type="text" class="max" name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][max]" value="<?php echo isset($options['max']) ? (int)$options['max'] : 5; ?>" /></label>
 <label>
 	Rating Type:
 	<select name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][type]" class="rating_type">
 		<option value="dropdown" <?php echo ( isset($options['type']) AND $options['type'] === 'dropdown' ) ? 'selected="selected"' : NULL; ?>>Dropdown</option>
 		<option value="radios" <?php echo ( isset($options['type']) AND $options['type'] === 'radios' ) ? 'selected="selected"' : NULL; ?>>Radios</option>
 		<option value="text" <?php echo ( isset($options['type']) AND $options['type'] === 'text' ) ? 'selected="selected"' : NULL; ?>>Text</option>
+	</select>
+</label>
+<label>
+	Custom Rating Headers:
+	<select name="vwm_surveys_pages[<?php echo $page_number; ?>][questions][<?php echo $question_number; ?>][options][custom_radio_headers]" class="custom_rating_headers">
+		<option value="FALSE" <?php echo ( isset($options['custom_radio_headers']) AND $options['custom_radio_headers'] === TRUE ) ? 'selected="selected"' : NULL; ?>>No</option>
+		<option value="TRUE" <?php echo ( isset($options['custom_radio_headers']) AND $options['custom_radio_headers'] === FALSE ) ? 'selected="selected"' : NULL; ?>>Yes</option>
 	</select>
 </label>

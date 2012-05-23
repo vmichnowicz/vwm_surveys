@@ -7,15 +7,15 @@
 	</thead>
 	<tbody>
 		<tr>
-			<td>One</td>
+			<td>BMW</td>
+			<td><input type="text" name="vwm_surveys_questions[][data]"/></td>
+		</tr>
+		<tr>
+			<td>Audi</td>
 			<td><input type="text" /></td>
 		</tr>
 		<tr>
-			<td>Two</td>
-			<td><input type="text" /></td>
-		</tr>
-		<tr>
-			<td>Three</td>
+			<td>VW</td>
 			<td><input type="text" /></td>
 		</tr>
 	</tbody>
