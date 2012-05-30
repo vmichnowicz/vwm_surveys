@@ -18,7 +18,8 @@
 class Vwm_surveys_upd {
 
 	private $EE;
-	public $version = '0.4';
+	public $version = '0.4.1';
+	const MIN_PHP_VERSION = '5.3.0';
 
 	/**
 	 * Constructor
@@ -40,6 +41,8 @@ class Vwm_surveys_upd {
 	 */	
 	public function install()
 	{
+		$this->check_php_version();
+
 		// VWM Polls module information
 		$data = array(
 			'module_name' => 'Vwm_surveys',
@@ -180,6 +183,8 @@ class Vwm_surveys_upd {
 	 */	
 	public function update($current = '')
 	{
+		$this->check_php_version();
+
 		// Get database prefix
 		$prefix = $this->EE->db->dbprefix;
 
@@ -225,6 +230,22 @@ class Vwm_surveys_upd {
 		}
 
 		return TRUE;
+	}
+
+	/**
+	 * Check the current version of PHP and thow an error if it's not good enough
+	 *
+	 * @access private
+	 * @return boolean
+	 */
+	private function check_php_version()
+	{
+		// If current version of PHP is not up snuff
+		if ( version_compare(PHP_VERSION, self::MIN_PHP_VERSION) < 0 )
+		{
+			show_error('VWM Surveys requires PHP version ' . self::MIN_PHP_VERSION . ' or higher.');
+			return FALSE;
+		}
 	}
 
 }

@@ -8,6 +8,10 @@ VWM Surveys is licensed under the [Apache 2 License](http://www.apache.org/licen
 
 ## Change Log
 
+### 0.4.1
+
+ * Added check for PHP version in module installer and updater (PHP 5.3 or greater is required)
+
 ### 0.4
 
 * Better breadcrumbs
