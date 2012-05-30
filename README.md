@@ -11,6 +11,7 @@ VWM Surveys is licensed under the [Apache 2 License](http://www.apache.org/licen
 ### 0.4.1
 
  * Question titles can now be 16777215 characters (up from 128)
+ * Added check for PHP version in module installer and updater (PHP 5.3 or greater is required)
 
 ### 0.4
 
