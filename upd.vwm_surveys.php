@@ -18,7 +18,7 @@
 class Vwm_surveys_upd {
 
 	private $EE;
-	public $version = '0.4';
+	public $version = '0.4.1';
 
 	/**
 	 * Constructor
@@ -61,7 +61,7 @@ class Vwm_surveys_upd {
 		$this->EE->db->query("	
 			CREATE TABLE IF NOT EXISTS `{$prefix}vwm_surveys_questions` (
 				`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-				`title` varchar(128) DEFAULT NULL,
+				`title` mediumtext NULL DEFAULT NULL,
 				`type` varchar(32) NOT NULL,
 				`options` mediumtext NULL DEFAULT NULL,
 				`custom_order` tinyint(3) unsigned NOT NULL DEFAULT  '0',
@@ -221,6 +221,15 @@ class Vwm_surveys_upd {
 				ALTER TABLE  `{$prefix}vwm_surveys_questions`
 				CHANGE `options` `options` MEDIUMTEXT CHARACTER SET utf8 NULL DEFAULT NULL ,
 				CHANGE `custom_order` `custom_order` TINYINT(3) UNSIGNED NOT NULL DEFAULT  '0'
+			");
+		}
+		
+		if ($current < '0.4.1')
+		{
+			// Update question title to be MEDIUMTEXT
+			$this->EE->db->query("
+				ALTER TABLE `{$prefix}vwm_surveys_questions`
+				CHANGE `title` `title` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL
 			");
 		}
 
