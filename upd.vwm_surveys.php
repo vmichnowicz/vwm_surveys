@@ -18,7 +18,8 @@
 class Vwm_surveys_upd {
 
 	private $EE;
-	public $version = '0.4';
+	public $version = '0.4.1';
+	const MIN_PHP_VERSION = '5.3.0';
 
 	/**
 	 * Constructor
@@ -40,6 +41,8 @@ class Vwm_surveys_upd {
 	 */	
 	public function install()
 	{
+		$this->check_php_version();
+
 		// VWM Polls module information
 		$data = array(
 			'module_name' => 'Vwm_surveys',
@@ -61,7 +64,7 @@ class Vwm_surveys_upd {
 		$this->EE->db->query("	
 			CREATE TABLE IF NOT EXISTS `{$prefix}vwm_surveys_questions` (
 				`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-				`title` varchar(128) DEFAULT NULL,
+				`title` mediumtext NULL DEFAULT NULL,
 				`type` varchar(32) NOT NULL,
 				`options` mediumtext NULL DEFAULT NULL,
 				`custom_order` tinyint(3) unsigned NOT NULL DEFAULT  '0',
@@ -180,6 +183,8 @@ class Vwm_surveys_upd {
 	 */	
 	public function update($current = '')
 	{
+		$this->check_php_version();
+
 		// Get database prefix
 		$prefix = $this->EE->db->dbprefix;
 
@@ -223,8 +228,33 @@ class Vwm_surveys_upd {
 				CHANGE `custom_order` `custom_order` TINYINT(3) UNSIGNED NOT NULL DEFAULT  '0'
 			");
 		}
+		
+		if ($current < '0.4.1')
+		{
+			// Update question title to be MEDIUMTEXT
+			$this->EE->db->query("
+				ALTER TABLE `{$prefix}vwm_surveys_questions`
+				CHANGE `title` `title` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL
+			");
+		}
 
 		return TRUE;
+	}
+
+	/**
+	 * Check the current version of PHP and thow an error if it's not good enough
+	 *
+	 * @access private
+	 * @return boolean
+	 */
+	private function check_php_version()
+	{
+		// If current version of PHP is not up snuff
+		if ( version_compare(PHP_VERSION, self::MIN_PHP_VERSION) < 0 )
+		{
+			show_error('VWM Surveys requires PHP version ' . self::MIN_PHP_VERSION . ' or higher.');
+			return FALSE;
+		}
 	}
 
 }
