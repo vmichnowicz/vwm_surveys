@@ -216,6 +216,11 @@ class Vwm_surveys_mcp {
 			// Add survey to database and get its ID back
 			$survey_id = $this->EE->vwm_surveys_m->insert_survey($title);
 
+			if ( $clone_id = $this->EE->input->post('clone_id') )
+			{
+				$this->EE->vwm_surveys_m->clone_survey($survey_id, $clone_id);
+			}
+
 			// Great success!
 			$this->EE->session->set_flashdata('message_success', 'Survey added!');
 
@@ -237,7 +242,10 @@ class Vwm_surveys_mcp {
 				'vwm_surveys_survey_submissions' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP .'method=survey_submissions'
 			));
 
-			$data['action_url'] = 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=add_survey';
+			$data = array(
+				'action_url' => 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=add_survey',
+				'surveys' => $this->EE->vwm_surveys_m->get_surveys()
+			);
 
 			return $this->EE->load->view('mcp_add_survey', $data, TRUE);
 		}

@@ -308,6 +308,48 @@ class Vwm_surveys_m extends CI_Model {
 	}
 
 	/**
+	 * Copy a survey
+	 *
+	 * @access public
+	 * @param int				Survey ID
+	 * @param int				Survey ID that we will clone data from
+	 * @return bool
+	 */
+	public function clone_survey($survey_id, $clone_id)
+	{
+		// Make sure we have integers
+		$survey_id = (int)$survey_id;
+		$clone_id = (int)$clone_id;
+
+		$prefix = $this->EE->db->dbprefix;
+
+		$survey = $this->get_survey($survey_id);
+		$clone = $this->get_survey($clone_id);
+
+		// If both surveys exist
+		if ($survey AND $clone)
+		{
+			$this->db->query("
+				INSERT INTO `{$prefix}vwm_surveys_pages`
+				SELECT $survey_id survey_id, page, title
+				FROM `{$prefix}vwm_surveys_pages`
+				WHERE survey_id = $clone_id
+			");
+
+			$this->db->query("
+				INSERT INTO `{$prefix}vwm_surveys_questions` (title, type, options, custom_order, page, survey_id)
+				SELECT title, type, options, custom_order, page, $survey_id survey_id
+				FROM `{$prefix}vwm_surveys_questions`
+				WHERE survey_id = $clone_id
+			");
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	/**
 	 * Delete a survey and all corresponding survey questions, pages, results, and submissions
 	 *
 	 * @access public
