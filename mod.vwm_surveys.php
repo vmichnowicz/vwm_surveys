@@ -236,14 +236,16 @@ class Vwm_surveys {
 	public function surveys()
 	{
 		$surveys = array();
+		$site_id = $this->EE->TMPL->fetch_param('site_id') ? (int)$this->EE->TMPL->fetch_param('site_id') : (int)$this->EE->config->item('site_id');
 		$user_progress = $this->EE->vwm_surveys_submissions_m->user_submissions_progress( $this->get_submission_hashes() );
 		$user_complete = $this->EE->vwm_surveys_submissions_m->user_submissions_complete( $this->get_submission_hashes() );
 
-		// Loop through all surveys
-		foreach ($this->EE->vwm_surveys_m->get_surveys() as $survey)
+		// Loop through all surveys (for this particular site)
+		foreach ($this->EE->vwm_surveys_m->get_surveys($site_id) as $survey)
 		{
 			$surveys[] = array(
 				'id' => $survey['id'],
+				'site_id' => $survey['site_id'],
 				'hash' => $survey['hash'],
 				'title' => $survey['title'],
 				'num_questions' => $survey['num_questions'],

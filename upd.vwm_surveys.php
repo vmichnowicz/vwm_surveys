@@ -238,6 +238,15 @@ class Vwm_surveys_upd {
 			");
 		}
 
+		if ($current < '0.5')
+		{
+			// Add site ID
+			$this->EE->db->query("
+				ALTER TABLE  `{$prefix}vwm_surveys_surveys`
+				ADD `site_id` INT(4) UNSIGNED NOT NULL DEFAULT '1' AFTER `id`
+			");
+		}
+
 		return TRUE;
 	}
 

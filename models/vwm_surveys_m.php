@@ -20,7 +20,7 @@ class Vwm_surveys_m extends CI_Model {
 	// Constants
 	const MAX_NUM_QUESTIONS = 100;
 
-	protected $EE, $survey_id, $survey_title, $page, $page_title, $question_id, $question_title, $question_type, $question_options, $question_custom_order;
+	protected $EE, $site_id, $survey_id, $survey_title, $page, $page_title, $question_id, $question_title, $question_type, $question_options, $question_custom_order;
 
 	/**
 	 * Model construct
@@ -32,6 +32,9 @@ class Vwm_surveys_m extends CI_Model {
 	{
 		// Make a local reference to the ExpressionEngine super object
 		$this->EE =& get_instance();
+
+		// Get site ID of current site
+		$this->site_id = $this->EE->config->item('site_id');
 	}
 
 	/**
@@ -145,8 +148,15 @@ class Vwm_surveys_m extends CI_Model {
 
 	// -------------------------------------------------------------------------
 
+	/**
+	 * Get all members
+	 *
+	 * @access public
+	 * @return string
+	 */
 	public function get_members()
 	{
+		$data = array();
 		$query = $this->db->select('member_id, group_id, screen_name')->get('members');
 
 		foreach ($query->result() as $row)
@@ -170,6 +180,35 @@ class Vwm_surveys_m extends CI_Model {
 			'group_id' => $guest_group_id !== FALSE ? (int) $guest_group_id : NULL,
 			'screen_name' => 'Guests'
 		);
+
+		return $data;
+	}
+
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Get all sites
+	 *
+	 * @access public
+	 * @return array
+	 */
+	public function get_sites()
+	{
+		$data = array();
+		$query = $this->db->get('sites');
+
+		if ($query->num_rows() > 0)
+		{
+			foreach ($query->result() as $row)
+			{
+				$data[ (int)$row->site_id ] = array(
+					'id' => (int)$row->site_id,
+					'label' => $row->site_label,
+					'name' => $row->site_name,
+					'description' => $row->site_description
+				);
+			}
+		}
 
 		return $data;
 	}
@@ -204,8 +243,14 @@ class Vwm_surveys_m extends CI_Model {
 	 * @access public
 	 * @return array
 	 */
-	public function get_surveys()
+	public function get_surveys($site_id = NULL)
 	{
+		// If we only want surveys for a particular site
+		if ($site_id)
+		{
+			$this->db->where('site_id', $site_id);
+		}
+
 		// Get all surveys
 		$query = $this->db->get('vwm_surveys_surveys');
 		
@@ -218,6 +263,7 @@ class Vwm_surveys_m extends CI_Model {
 			{
 				$data[ (int)$row->id ] = array(
 					'id' => (int)$row->id,
+					'site_id' => (int)$row->site_id,
 					'hash' => $row->hash,
 					'title' => $row->title,
 					'num_questions' => count($this->get_questions($row->id)),
@@ -251,7 +297,8 @@ class Vwm_surveys_m extends CI_Model {
 			$row = $query->row(); 
 
 			$data = array(
-				'id' => $survey_id,
+				'id' => (int)$survey_id,
+				'site_id' => (int)$row->site_id,
 				'title' => $row->title,
 				'allowed_groups' => $this->parse_groups($row->allowed_groups),
 				'hash' => $row->hash,
@@ -292,12 +339,14 @@ class Vwm_surveys_m extends CI_Model {
 	 *
 	 * @access public
 	 * @param string			Survey title
+	 * @param int				Site ID
 	 * @return int				Survey ID
 	 */
-	public function insert_survey($title)
+	public function insert_survey($title, $site_id = NULL)
 	{
 		$data = array(
 			'title' => $title,
+			'site_id' => empty($site_id) ? $this->site_id : (int)$site_id,
 			'hash' => md5( $title . microtime() ),
 			'created' => time()
 		);
