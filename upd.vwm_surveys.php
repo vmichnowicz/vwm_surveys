@@ -18,7 +18,7 @@
 class Vwm_surveys_upd {
 
 	private $EE;
-	public $version = '0.4.1';
+	public $version = '0.5';
 	const MIN_PHP_VERSION = '5.3.0';
 
 	/**
