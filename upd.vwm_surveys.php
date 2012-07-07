@@ -18,7 +18,7 @@
 class Vwm_surveys_upd {
 
 	private $EE;
-	public $version = '0.4.1';
+	public $version = '0.5';
 	const MIN_PHP_VERSION = '5.3.0';
 
 	/**
@@ -80,6 +80,7 @@ class Vwm_surveys_upd {
 		$this->EE->db->query("
 			CREATE TABLE IF NOT EXISTS `{$prefix}vwm_surveys_surveys` (
 				`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+				`site_id` INT(4) UNSIGNED NOT NULL DEFAULT '1',
 				`hash` varchar(32) NOT NULL,
 				`title` varchar(128) NOT NULL,
 				`allowed_groups` varchar(128) DEFAULT NULL,
@@ -235,6 +236,15 @@ class Vwm_surveys_upd {
 			$this->EE->db->query("
 				ALTER TABLE `{$prefix}vwm_surveys_questions`
 				CHANGE `title` `title` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL
+			");
+		}
+
+		if ($current < '0.5')
+		{
+			// Add site ID
+			$this->EE->db->query("
+				ALTER TABLE  `{$prefix}vwm_surveys_surveys`
+				ADD `site_id` INT(4) UNSIGNED NOT NULL DEFAULT '1' AFTER `id`
 			");
 		}
 
