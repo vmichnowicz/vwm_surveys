@@ -80,6 +80,7 @@ class Vwm_surveys_upd {
 		$this->EE->db->query("
 			CREATE TABLE IF NOT EXISTS `{$prefix}vwm_surveys_surveys` (
 				`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+				`site_id` INT(4) UNSIGNED NOT NULL DEFAULT '1',
 				`hash` varchar(32) NOT NULL,
 				`title` varchar(128) NOT NULL,
 				`allowed_groups` varchar(128) DEFAULT NULL,

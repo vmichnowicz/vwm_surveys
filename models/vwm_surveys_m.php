@@ -32,9 +32,6 @@ class Vwm_surveys_m extends CI_Model {
 	{
 		// Make a local reference to the ExpressionEngine super object
 		$this->EE =& get_instance();
-
-		// Get site ID of current site
-		$this->site_id = $this->EE->config->item('site_id');
 	}
 
 	/**
@@ -220,13 +217,14 @@ class Vwm_surveys_m extends CI_Model {
 	 *
 	 * @access public
 	 * @param int				Survey ID
+	 * @param int				Site ID
 	 * @return array
 	 */
-	public function get_survey($survey_id)
+	public function get_survey($survey_id, $site_id = NULL)
 	{
 		$data = array();
 		
-		$survey_details = $this->get_survey_details($survey_id);
+		$survey_details = $this->get_survey_details($survey_id, $site_id);
 		
 		if ($survey_details)
 		{
@@ -241,6 +239,7 @@ class Vwm_surveys_m extends CI_Model {
 	 * Get all surveys
 	 * 
 	 * @access public
+	 * @param int				Site ID
 	 * @return array
 	 */
 	public function get_surveys($site_id = NULL)
@@ -281,10 +280,16 @@ class Vwm_surveys_m extends CI_Model {
 	 * 
 	 * @access public
 	 * @param int				Survey ID
+	 * @param int				Site ID
 	 * @return array
 	 */
-	public function get_survey_details($survey_id)
+	public function get_survey_details($survey_id, $site_id = NULL)
 	{
+		if ( ! empty($site_id) )
+		{
+			$this->db->where('site_id', $site_id);
+		}
+
 		$query = $this->db
 			->where('id', $survey_id)
 			->limit(1)
@@ -342,11 +347,11 @@ class Vwm_surveys_m extends CI_Model {
 	 * @param int				Site ID
 	 * @return int				Survey ID
 	 */
-	public function insert_survey($title, $site_id = NULL)
+	public function insert_survey($title, $site_id)
 	{
 		$data = array(
 			'title' => $title,
-			'site_id' => empty($site_id) ? $this->site_id : (int)$site_id,
+			'site_id' => (int)$site_id,
 			'hash' => md5( $title . microtime() ),
 			'created' => time()
 		);

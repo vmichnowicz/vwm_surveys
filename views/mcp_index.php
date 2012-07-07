@@ -3,7 +3,6 @@
 <table class="mainTable" border="0px" cellpadding="0px" cellspacing="0px">
 	<thead>
 		<tr>
-			<th>Site</th>
 			<th>ID</th>
 			<th>Name</th>
 			<th>Questions</th>
@@ -16,9 +15,6 @@
 		<?php if ( isset($surveys) AND is_array($surveys) ): ?>
 			<?php foreach ($surveys as $survey): ?>
 				<tr>
-					<td>
-						<?php echo isset($sites[ $survey['site_id'] ]) ? $sites[ $survey['site_id'] ]['label'] : NULL; ?>
-					</td>
 					<td><?php echo $survey['id']; ?></td>
 					<td><?php echo $survey['title']; ?></td>
 					<td><?php echo $survey['num_questions']; ?></td>

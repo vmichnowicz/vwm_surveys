@@ -99,11 +99,12 @@ class Vwm_surveys_mcp {
 			'vwm_surveys_survey_submissions' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP .'method=survey_submissions'
 		));
 
+		// Get current site ID
+		$site_id = $this->EE->config->item('site_id');
+
 		// Data to get passed to view
 		$data = array(
-			'surveys' => $this->EE->vwm_surveys_m->get_surveys(), // All surveys
-			'sites' => $this->EE->vwm_surveys_m->get_sites(), // Get all sites
-			'site_id' => (int)$this->EE->config->item('site_id') // Get current site ID
+			'surveys' => $this->EE->vwm_surveys_m->get_surveys($site_id), // All surveys for this current site
 		);
 
 		return $this->EE->load->view('mcp_index', $data, TRUE);
@@ -215,8 +216,8 @@ class Vwm_surveys_mcp {
 		// If this page was POSTed to with a valid title
 		if ( $title = trim($this->EE->input->post('title')) )
 		{
-			// If site ID is not provided our model will use current site ID
-			$site_id = $this->EE->input->post('site_id');
+			// Get current site ID
+			$site_id = $this->EE->config->item('site_id');
 
 			// Add survey to database and get its ID back
 			$survey_id = $this->EE->vwm_surveys_m->insert_survey($title, $site_id);
@@ -244,8 +245,6 @@ class Vwm_surveys_mcp {
 
 			$data = array(
 				'action_url' => 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=add_survey',
-				'sites' => $this->EE->vwm_surveys_m->get_sites(), // Get all sites
-				'site_id' => (int)$this->EE->config->item('site_id') // Get current site ID
 			);
 
 			return $this->EE->load->view('mcp_add_survey', $data, TRUE);
