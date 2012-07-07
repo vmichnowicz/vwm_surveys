@@ -385,7 +385,7 @@ class Vwm_surveys_m extends CI_Model {
 		{
 			$this->db->query("
 				INSERT INTO `{$prefix}vwm_surveys_pages`
-				SELECT $survey_id survey_id, page, title
+				SELECT $survey_id survey_id, page, title, description
 				FROM `{$prefix}vwm_surveys_pages`
 				WHERE survey_id = $clone_id
 			");
