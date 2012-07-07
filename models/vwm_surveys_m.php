@@ -416,25 +416,28 @@ class Vwm_surveys_m extends CI_Model {
 	public function get_questions_by_page($survey_id)
 	{
 		$data = array();
-		
+
 		// Get all questions for this survey
 		$query = $this->db
 			->where('survey_id', $survey_id)
 			->get('vwm_surveys_questions');
-		
+
 		// Grab all page titles for this survey
-		$page_titles = $this->get_survey_page_titles($survey_id);
-		
+		$pages = $this->get_pages($survey_id);
+
 		// If we have at least one page
-		if ( count($page_titles) > 0 )
+		if ( is_array($pages) AND count($pages) > 0 )
 		{
-			foreach ($page_titles as $page_number => $page_title)
+			foreach ($pages as $page_number => $page)
 			{
-				// Add in page title
-				$data[ $page_number ]['title'] = $page_title;
+				// Add in page details
+				$data[ $page_number ] = array(
+					'title' => isset($page['title']) ? $page['title'] : NULL,
+					'description' => isset($page['description']) ? $page['description'] : NULL
+				);
 			}
 		}
-		
+
 		// If this survey has some questions
 		if ($query->num_rows() > 0)
 		{
@@ -447,7 +450,7 @@ class Vwm_surveys_m extends CI_Model {
 				$data[ (int)$row['page'] ]['questions'][ $row['id'] ] = $row;
 			}
 		}
-		
+
 		return $data;
 	}
 	
@@ -722,15 +725,21 @@ class Vwm_surveys_m extends CI_Model {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Get all page titles for a given survey
+	 * Get all pages for a given survey
 	 *
 	 * @access public
 	 * @param int				Survey ID
 	 * @return array
 	 */
-	public function get_survey_page_titles($survey_id)
+	public function get_pages($survey_id, $page = NULL)
 	{
 		$data = array();
+
+		// If we are attempting to get a specific page
+		if ( isset($page) )
+		{
+			$this->db->where('page', $page);
+		}
 
 		$query = $this->db
 			->where('survey_id', $survey_id)
@@ -740,11 +749,28 @@ class Vwm_surveys_m extends CI_Model {
 		{
 			foreach ($query->result() as $row)
 			{
-				$data[ (int)$row->page ] = $row->title;
+				$data[ (int)$row->page ] = array(
+					'page' => $row->page,
+					'title' => $row->title,
+					'description' => $row->description
+				);
 			}
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Get details for a specific survey page
+	 *
+	 * @access public
+	 * @param int				Survey ID
+	 * @param int				Page number
+	 * @return array
+	 */
+	public function get_page($survey_id, $page)
+	{
+		return $this->get_pages($survey_id, $page);
 	}
 	
 	/**
@@ -755,7 +781,7 @@ class Vwm_surveys_m extends CI_Model {
 	 * @param string			Page title
 	 * @return mixed			If the page insertion was successful return the page number, else return FALSE
 	 */
-	public function insert_page($id, $title)
+	public function insert_page($id, $title, $description = '')
 	{
 		// Get the last page for this survey
 		$query = $this->db
@@ -772,8 +798,9 @@ class Vwm_surveys_m extends CI_Model {
 			
 			$data = array(
 				'survey_id' => $id,
+				'page' => $page,
 				'title' => $title,
-				'page' => $page
+				'description' => $description
 			);
 		
 			$this->db->insert('vwm_surveys_pages', $data);
@@ -786,8 +813,9 @@ class Vwm_surveys_m extends CI_Model {
 		{
 			$data = array(
 				'survey_id' => $id,
+				'page' => 0, // Our first page!
 				'title' => $title,
-				'page' => 0 // Our first page!
+				'description' => $description
 			);
 
 			$this->db->insert('vwm_surveys_pages', $data);
@@ -804,14 +832,15 @@ class Vwm_surveys_m extends CI_Model {
 	 * @param int				Survey ID
 	 * @param int				Page number
 	 * @param string			Page title
+	 * @param string			Page description
 	 * @return bool
 	 */
-	public function update_page($survey_id, $page, $title)
+	public function update_page($survey_id, $page, $title = '', $description = '')
 	{	
 		$this->db
 			->where('survey_id', $survey_id)
 			->where('page', $page)
-			->update( 'vwm_surveys_pages', array('title' => $title) );
+			->update( 'vwm_surveys_pages', array('title' => $title, 'description' => $description) );
 		
 		return $this->db->affected_rows() > 0 ? TRUE : FALSE;
 	}

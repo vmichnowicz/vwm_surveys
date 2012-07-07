@@ -421,6 +421,35 @@ class Vwm_surveys {
 			show_error('This survey contains no data.');
 		}
 
+		$variables[0] = array(
+			'id' => $survey['id'],
+			'title' => $survey['title'],
+			'in_allowed_group' => $this->is_allowed_group($survey['allowed_groups']),
+			'complete' => $this->is_complete( $this->get_survey_id() ),
+			'progress' => $this->is_progress( $this->get_survey_id() ), // Returns a submission hash if there is progress with this survey
+			'total_pages' => $total_pages,
+			'current_page' => $current_page + 1, // $current_page is zero-index
+			'page_title' => $survey['pages'][ $current_page ]['title'],
+			'page_description' => $survey['pages'][ $current_page ]['description'],
+			'questions' => $questions
+		);
+		
+		// Set hidden fields, class, and ID for our form
+		$form_data = array(
+			'id' => 'vwm_surveys_survey_' . $this->get_survey_id(),
+			'class' => 'vwm_surveys_survey',
+			'hidden_fields' => array(
+				'ACT' => $this->EE->functions->fetch_action_id('Vwm_surveys', 'submit_survey'),
+				'RET' => $this->EE->TMPL->fetch_param('return') ? $this->EE->TMPL->fetch_param('return') : NULL,
+				'URI' => $this->EE->uri->uri_string ? $this->EE->uri->uri_string : 'index',
+				'save_survey' => $this->EE->functions->fetch_action_id('Vwm_surveys', 'save_survey'),
+				'survey_id' => $this->get_survey_id(),
+				'current_page' => $current_page,
+				'hash' => $this->get_hash(),
+				'redirect' => $redirect
+			)
+		);
+
 		// Make the magic happen
 		return $this->EE->functions->form_declaration($form_data) . $this->EE->TMPL->parse_variables($this->EE->TMPL->tagdata, $variables) . '</form>';
 	}
