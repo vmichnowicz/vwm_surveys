@@ -12,7 +12,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		<?php if ($surveys): ?>
+		<?php if ( isset($surveys) AND is_array($surveys) ): ?>
 			<?php foreach ($surveys as $survey): ?>
 				<tr>
 					<td><?php echo $survey['id']; ?></td>
