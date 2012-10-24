@@ -8,10 +8,16 @@ VWM Surveys is licensed under the [Apache 2 License](http://www.apache.org/licen
 
 ## Change Log
 
+### 0.5
+
+* Added page description textarea
+* Can now clone surveys (pages & questions)
+* ExpressionEngine [Multiple Site Manager (MSM)](http://expressionengine.com/downloads/details/multiple_site_manager/) support
+
 ### 0.4.1
 
- * Question titles can now be 16777215 characters (up from 128)
- * Added check for PHP version in module installer and updater (PHP 5.3 or greater is required)
+* Question titles can now be 16777215 characters (up from 128)
+* Added check for PHP version in module installer and updater (PHP 5.3 or greater is required)
 
 ### 0.4
 

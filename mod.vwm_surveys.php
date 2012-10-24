@@ -236,14 +236,16 @@ class Vwm_surveys {
 	public function surveys()
 	{
 		$surveys = array();
+		$site_id = $this->EE->TMPL->fetch_param('site_id') ? (int)$this->EE->TMPL->fetch_param('site_id') : (int)$this->EE->config->item('site_id');
 		$user_progress = $this->EE->vwm_surveys_submissions_m->user_submissions_progress( $this->get_submission_hashes() );
 		$user_complete = $this->EE->vwm_surveys_submissions_m->user_submissions_complete( $this->get_submission_hashes() );
 
-		// Loop through all surveys
-		foreach ($this->EE->vwm_surveys_m->get_surveys() as $survey)
+		// Loop through all surveys (for this particular site)
+		foreach ($this->EE->vwm_surveys_m->get_surveys($site_id) as $survey)
 		{
 			$surveys[] = array(
 				'id' => $survey['id'],
+				'site_id' => $survey['site_id'],
 				'hash' => $survey['hash'],
 				'title' => $survey['title'],
 				'num_questions' => $survey['num_questions'],
@@ -271,6 +273,7 @@ class Vwm_surveys {
 	 */
 	public function survey()
 	{
+		$site_id = $this->EE->TMPL->fetch_param('site_id') ? (int)$this->EE->TMPL->fetch_param('site_id') : (int)$this->EE->config->item('site_id');
 		$redirect = $this->EE->TMPL->fetch_param('redirect') ? $this->EE->functions->create_url( $this->EE->TMPL->fetch_param('redirect') ) : NULL;
 
 		// The page of the survey we want to display (default to the first page - 0)
@@ -298,7 +301,7 @@ class Vwm_surveys {
 				}
 
 				// Get the survey details for this survey
-				$survey = $this->EE->vwm_surveys_m->get_survey($submission['survey_id']);
+				$survey = $this->EE->vwm_surveys_m->get_survey($submission['survey_id'], $site_id);
 				$total_pages = count($survey['pages']);
 				$current_page = $submission['current_page'];
 
@@ -323,7 +326,7 @@ class Vwm_surveys {
 		else
 		{
 			// Make sure this survey exists
-			if ( $survey = $this->EE->vwm_surveys_m->get_survey( $this->get_survey_id() ) )
+			if ( $survey = $this->EE->vwm_surveys_m->get_survey( $this->get_survey_id(), $site_id ) )
 			{
 				$total_pages = count($survey['pages']);
 			}
@@ -336,42 +339,86 @@ class Vwm_surveys {
 		// Prepare question data for our EE template
 		$questions = array();
 
-		// Loop through all questions on the current page
-		foreach ($survey['pages'][ $current_page ]['questions'] as $question)
+		// If this survey exists and it has at least one page
+		if ( isset($survey) AND isset($survey['pages']) AND count($survey['pages']) > 0 )
 		{
-			// If a question-specific function exists to preprocess our question options
-			if ( function_exists($preprocess_function = 'vwm_' . $question['type'] . '_preprocess') )
+			// If the current survey page is set and has an array of questions
+			if ( isset($survey['pages'][ $current_page ]['questions']) AND is_array($survey['pages'][ $current_page ]['questions']) )
 			{
-				$question['options'] = $preprocess_function($question['options']);
+				// Loop through all questions on the current page
+				foreach ($survey['pages'][ $current_page ]['questions'] as $question)
+				{
+					// If a question-specific function exists to preprocess our question options
+					if ( function_exists($preprocess_function = 'vwm_' . $question['type'] . '_preprocess') )
+					{
+						$question['options'] = $preprocess_function($question['options']);
+					}
+
+					// Data to be passed to our question view file
+					$data = array(
+						'id' => $question['id'],
+						'page_number' => $current_page,
+						'question_number' => $question['custom_order'],
+						'options' => $question['options'],
+						'data' => isset($question['data']) ? $question['data'] : NULL
+					);
+
+					/**
+					* EE 2.13 uses an older version of CI that does not allow us to
+					* easily load third party views from within our module.
+					*
+					* '../third_party/vwm_surveys/views/questions_view/vwm_' . $question['type'] . '_view' // EE 2.1
+					* 'questions_view/vwm_' . $question['type'] . '_view' // EE 2.2 onwards
+					*
+					* @todo There really should be a better way to do this...
+					*/
+					$view_file = $this->EE->config->item('app_version') <= 213 ? '../third_party/vwm_surveys/views/' : '';
+					$view_file .= 'questions_view/vwm_' . $question['type'] . '_view';
+
+					$questions[] = array(
+						'question_id' => $question['id'],
+						'question_title' => $question['title'],
+						'question_number' => $question['custom_order'],
+						'question' => $this->EE->load->view($view_file, $data, TRUE) // EE 2.1
+					);
+				}
+			}
+			else
+			{
+				// This page contains no questions...
 			}
 
-			// Data to be passed to our question view file
-			$data = array(
-				'id' => $question['id'],
-				'page_number' => $current_page,
-				'question_number' => $question['custom_order'],
-				'options' => $question['options'],
-				'data' => isset($question['data']) ? $question['data'] : NULL
+			$variables[0] = array(
+				'id' => $survey['id'],
+				'title' => $survey['title'],
+				'in_allowed_group' => $this->is_allowed_group($survey['allowed_groups']),
+				'complete' => $this->is_complete( $this->get_survey_id() ),
+				'progress' => $this->is_progress( $this->get_survey_id() ), // Returns a submission hash if there is progress with this survey
+				'total_pages' => $total_pages,
+				'current_page' => $current_page + 1, // $current_page is zero-index
+				'page_title' => $survey['pages'][ $current_page ]['title'],
+				'questions' => $questions
 			);
-			
-			/**
-			 * EE 2.13 uses an older version of CI that does not allow us to
-			 * easily load third party views from within our module.
-			 * 
-			 * '../third_party/vwm_surveys/views/questions_view/vwm_' . $question['type'] . '_view' // EE 2.1
-			 * 'questions_view/vwm_' . $question['type'] . '_view' // EE 2.2 onwards
-			 *
-			 * @todo There really should be a better way to do this...
-			 */
-			$view_file = $this->EE->config->item('app_version') <= 213 ? '../third_party/vwm_surveys/views/' : '';
-			$view_file .= 'questions_view/vwm_' . $question['type'] . '_view';
 
-			$questions[] = array(
-				'question_id' => $question['id'],
-				'question_title' => $question['title'],
-				'question_number' => $question['custom_order'],
-				'question' => $this->EE->load->view($view_file, $data, TRUE) // EE 2.1
+			// Set hidden fields, class, and ID for our form
+			$form_data = array(
+				'id' => 'vwm_surveys_survey_' .  $this->get_survey_id() ,
+				'class' => 'vwm_surveys_survey',
+				'hidden_fields' => array(
+					'ACT' => $this->EE->functions->fetch_action_id('Vwm_surveys', 'submit_survey'),
+					'RET' => $this->EE->TMPL->fetch_param('return') ? $this->EE->TMPL->fetch_param('return') : NULL,
+					'URI' => $this->EE->uri->uri_string ? $this->EE->uri->uri_string : 'index',
+					'save_survey' => $this->EE->functions->fetch_action_id('Vwm_surveys', 'save_survey'),
+					'survey_id' =>  $this->get_survey_id() ,
+					'current_page' => $current_page,
+					'hash' => $this->get_hash(),
+					'redirect' => $redirect
+				)
 			);
+		}
+		else
+		{
+			show_error('This survey contains no data.');
 		}
 
 		$variables[0] = array(
@@ -383,19 +430,20 @@ class Vwm_surveys {
 			'total_pages' => $total_pages,
 			'current_page' => $current_page + 1, // $current_page is zero-index
 			'page_title' => $survey['pages'][ $current_page ]['title'],
+			'page_description' => $survey['pages'][ $current_page ]['description'],
 			'questions' => $questions
 		);
 		
 		// Set hidden fields, class, and ID for our form
 		$form_data = array(
-			'id' => 'vwm_surveys_survey_' .  $this->get_survey_id() ,
+			'id' => 'vwm_surveys_survey_' . $this->get_survey_id(),
 			'class' => 'vwm_surveys_survey',
 			'hidden_fields' => array(
 				'ACT' => $this->EE->functions->fetch_action_id('Vwm_surveys', 'submit_survey'),
 				'RET' => $this->EE->TMPL->fetch_param('return') ? $this->EE->TMPL->fetch_param('return') : NULL,
 				'URI' => $this->EE->uri->uri_string ? $this->EE->uri->uri_string : 'index',
 				'save_survey' => $this->EE->functions->fetch_action_id('Vwm_surveys', 'save_survey'),
-				'survey_id' =>  $this->get_survey_id() ,
+				'survey_id' => $this->get_survey_id(),
 				'current_page' => $current_page,
 				'hash' => $this->get_hash(),
 				'redirect' => $redirect
