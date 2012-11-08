@@ -24,6 +24,7 @@
 						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=compile_survey_results' . AMP . 'survey_id=' . $survey['id']; ?>" class="submit">Compile Results</a>
 						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=survey_results' . AMP . 'survey_id=' . $survey['id']; ?>" class="submit">Results</a>
 						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=edit_survey' . AMP . 'survey_id=' . $survey['id']; ?>" class="submit">Modify</a>
+						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=survey_results_dump' . AMP . 'survey_id=' . $survey['id']; ?>" class="submit">Dump</a>
 						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=delete_survey_submissions' . AMP . 'survey_id=' . $survey['id'];?>" class="submit confirm" title="Remove all survey submissions for this survey">Remove All Submissions</a>
 						<a href="<?php echo BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=delete_survey' . AMP . 'survey_id=' . $survey['id']; ?>" class="submit confirm" title="Delete survey and all associated survey submissions">Delete</a>
 					</td>

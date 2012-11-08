@@ -504,6 +504,134 @@ class Vwm_surveys_mcp {
 	}
 
 	/**
+	 * Export survey results
+	 *
+	 * @access public
+	 * @author Carlos Romero
+	 * @author Victor Michnowicz
+	 * @return string
+	 */
+	public  function survey_results_dump()
+	{
+		$survey_id = (int)$this->EE->input->get('survey_id');
+		$survey = $this->EE->vwm_surveys_m->get_survey($survey_id);
+		$results = $this->EE->vwm_surveys_submissions_m->get_completed_survey_submissions($survey_id);
+
+		$encode_iso = TRUE;
+		$char = "\t";
+		$enclose = '"';
+		$cr = "\r\n";
+
+		$str_header = '';
+		$str_table  = '';
+
+		$arr_data = array();
+		$arr_f= array();
+
+		if ( isset($survey['pages']) && count($survey['pages']) > 0)
+		{
+			foreach ($survey['pages'] as $id_pag => $row_pag)
+			{
+				foreach ($row_pag['questions'] as $id_quest => $row_quest)
+				{
+					$str_header .= $enclose . $row_quest['title'] . $enclose . $char;
+
+					$arr_data[$id_quest]['options'] = $row_quest['options'];
+
+					$arr_f[0][$id_quest] = $row_quest['title'];
+				}
+
+			}
+		}
+
+		$str_header = substr($str_header,0,-1) . $cr;
+
+		// Preprocess to get first the row and then the question
+		$arr_result = array();
+
+		foreach ($results as $id_respuesta => $row_respuesta)
+		{
+			foreach ($row_respuesta['data'] as $id_pregunta=>$value)
+			{
+				if ( key_exists('option', $value) )
+				{
+					$arr_result[$id_respuesta][$id_pregunta] = $arr_data[$id_pregunta]['options']['radios'][$value['option']]['text'];
+				}
+				else if ( key_exists('text', $value))
+				{
+					$arr_result[$id_respuesta][$id_pregunta] = $value['text'];
+				}
+				else if ( key_exists('date', $value))
+				{
+					$arr_result[$id_respuesta][$id_pregunta] = $value['date'];
+				}
+				else if ( key_exists('textarea', $value))
+				{
+					$arr_result[$id_respuesta][$id_pregunta] = $value['textarea'];
+				}
+				else if( key_exists('selections', $value))
+				{
+					$temp_str = '';
+
+					foreach ($value['selections'] as $option=>$val)
+					{
+						if ( is_array($val) )
+						{
+							$temp_str .= $arr_data[$id_pregunta]['options']['checkboxes'][$option]['text'];
+
+							if ( key_exists('other', $val) )
+							{
+								// User defined option
+								if ( $val['other'] <> '' )
+								{
+									$temp_str .= ' (' . $val['other'] .')' ;
+								}
+							}
+
+							$temp_str .= '|';
+
+						}
+						else
+						{
+							$temp_str .= $arr_data[$id_pregunta]['options']['y'][$option]['text'] .'-'.$arr_data[$id_pregunta]['options']['x'][$val]['text'].'|';
+						}
+					}
+
+					$arr_result[$id_respuesta][$id_pregunta] = substr($temp_str,0,-1);
+				}
+			}
+		}
+
+		$arr_resultado = array_merge($arr_f, $arr_result);
+
+		$str_tabla = '';
+
+		foreach ($arr_resultado as $row_registro)
+		{
+			foreach ($row_registro as $key=>$cell)
+			{
+				if ($encode_iso)
+				{
+					$str_tabla .= $enclose . utf8_decode($cell) . $enclose . $char;
+
+				}
+				else
+				{
+					$str_tabla .= $enclose . ($cell) . $enclose . $char;
+				}
+			}
+
+			$str_tabla .= $cr ;
+		}
+
+		$this->EE->load->helper('download');
+
+		force_download('download.xls', $str_tabla);
+
+		exit;
+	}
+
+	/**
 	 * Compile results for a given survey CP page
 	 *
 	 * @access public
