@@ -901,8 +901,8 @@ class Vwm_surveys {
 			$hash = $this->EE->functions->random('encrypt');
 
 			$data = array(
-				'date' => time(),
-				'ip_address' => $this->EE->input->ip_address(),
+				'date' => $this->EE->localize->now,
+				'session_id' => $this->EE->session->userdata('session_id'),
 				'hash' => $hash
 			);
 
