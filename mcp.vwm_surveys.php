@@ -99,9 +99,12 @@ class Vwm_surveys_mcp {
 			'vwm_surveys_survey_submissions' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP .'method=survey_submissions'
 		));
 
+		// Get current site ID
+		$site_id = $this->EE->config->item('site_id');
+
 		// Data to get passed to view
 		$data = array(
-			'surveys' => $this->EE->vwm_surveys_m->get_surveys() // All surveys
+			'surveys' => $this->EE->vwm_surveys_m->get_surveys($site_id), // All surveys for this current site
 		);
 
 		return $this->EE->load->view('mcp_index', $data, TRUE);
@@ -210,11 +213,19 @@ class Vwm_surveys_mcp {
 	 */
 	public function add_survey()
 	{
+		// Get current site ID
+		$site_id = $this->EE->config->item('site_id');
+
 		// If this page was POSTed to with a valid title
 		if ( $title = trim($this->EE->input->post('title')) )
 		{
 			// Add survey to database and get its ID back
-			$survey_id = $this->EE->vwm_surveys_m->insert_survey($title);
+			$survey_id = $this->EE->vwm_surveys_m->insert_survey($title, $site_id);
+
+			if ( $clone_id = $this->EE->input->post('clone_id') )
+			{
+				$this->EE->vwm_surveys_m->clone_survey($survey_id, $clone_id);
+			}
 
 			// Great success!
 			$this->EE->session->set_flashdata('message_success', 'Survey added!');
@@ -237,7 +248,10 @@ class Vwm_surveys_mcp {
 				'vwm_surveys_survey_submissions' => BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP .'method=survey_submissions'
 			));
 
-			$data['action_url'] = 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=add_survey';
+			$data = array(
+				'action_url' => 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys' . AMP . 'method=add_survey',
+				'surveys' => $this->EE->vwm_surveys_m->get_surveys($site_id)
+			);
 
 			return $this->EE->load->view('mcp_add_survey', $data, TRUE);
 		}
@@ -323,7 +337,10 @@ class Vwm_surveys_mcp {
 			{
 				// Get title for this page and attempt to update it
 				$page_title = trim($page['title']);
-				$this->EE->vwm_surveys_m->update_page($survey_id, $page_number, $page_title);
+
+				$page_description = trim($page['description']);
+
+				$this->EE->vwm_surveys_m->update_page($survey_id, $page_number, $page_title, $page_description);
 
 				// Make sure this page has at least one question
 				if (isset($page['questions']))

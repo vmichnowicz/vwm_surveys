@@ -20,7 +20,7 @@ class Vwm_surveys_m extends CI_Model {
 	// Constants
 	const MAX_NUM_QUESTIONS = 100;
 
-	protected $EE, $survey_id, $survey_title, $page, $page_title, $question_id, $question_title, $question_type, $question_options, $question_custom_order;
+	protected $EE, $site_id, $survey_id, $survey_title, $page, $page_title, $question_id, $question_title, $question_type, $question_options, $question_custom_order;
 
 	/**
 	 * Model construct
@@ -145,8 +145,15 @@ class Vwm_surveys_m extends CI_Model {
 
 	// -------------------------------------------------------------------------
 
+	/**
+	 * Get all members
+	 *
+	 * @access public
+	 * @return string
+	 */
 	public function get_members()
 	{
+		$data = array();
 		$query = $this->db->select('member_id, group_id, screen_name')->get('members');
 
 		foreach ($query->result() as $row)
@@ -177,17 +184,47 @@ class Vwm_surveys_m extends CI_Model {
 	// -------------------------------------------------------------------------
 
 	/**
+	 * Get all sites
+	 *
+	 * @access public
+	 * @return array
+	 */
+	public function get_sites()
+	{
+		$data = array();
+		$query = $this->db->get('sites');
+
+		if ($query->num_rows() > 0)
+		{
+			foreach ($query->result() as $row)
+			{
+				$data[ (int)$row->site_id ] = array(
+					'id' => (int)$row->site_id,
+					'label' => $row->site_label,
+					'name' => $row->site_name,
+					'description' => $row->site_description
+				);
+			}
+		}
+
+		return $data;
+	}
+
+	// -------------------------------------------------------------------------
+
+	/**
 	 * Get a complete survey (survey details and all related questions)
 	 *
 	 * @access public
 	 * @param int				Survey ID
+	 * @param int				Site ID
 	 * @return array
 	 */
-	public function get_survey($survey_id)
+	public function get_survey($survey_id, $site_id = NULL)
 	{
 		$data = array();
 		
-		$survey_details = $this->get_survey_details($survey_id);
+		$survey_details = $this->get_survey_details($survey_id, $site_id);
 		
 		if ($survey_details)
 		{
@@ -202,10 +239,17 @@ class Vwm_surveys_m extends CI_Model {
 	 * Get all surveys
 	 * 
 	 * @access public
+	 * @param int				Site ID
 	 * @return array
 	 */
-	public function get_surveys()
+	public function get_surveys($site_id = NULL)
 	{
+		// If we only want surveys for a particular site
+		if ($site_id)
+		{
+			$this->db->where('site_id', $site_id);
+		}
+
 		// Get all surveys
 		$query = $this->db->get('vwm_surveys_surveys');
 		
@@ -218,6 +262,7 @@ class Vwm_surveys_m extends CI_Model {
 			{
 				$data[ (int)$row->id ] = array(
 					'id' => (int)$row->id,
+					'site_id' => (int)$row->site_id,
 					'hash' => $row->hash,
 					'title' => $row->title,
 					'num_questions' => count($this->get_questions($row->id)),
@@ -235,10 +280,16 @@ class Vwm_surveys_m extends CI_Model {
 	 * 
 	 * @access public
 	 * @param int				Survey ID
+	 * @param int				Site ID
 	 * @return array
 	 */
-	public function get_survey_details($survey_id)
+	public function get_survey_details($survey_id, $site_id = NULL)
 	{
+		if ( ! empty($site_id) )
+		{
+			$this->db->where('site_id', $site_id);
+		}
+
 		$query = $this->db
 			->where('id', $survey_id)
 			->limit(1)
@@ -251,7 +302,8 @@ class Vwm_surveys_m extends CI_Model {
 			$row = $query->row(); 
 
 			$data = array(
-				'id' => $survey_id,
+				'id' => (int)$survey_id,
+				'site_id' => (int)$row->site_id,
 				'title' => $row->title,
 				'allowed_groups' => $this->parse_groups($row->allowed_groups),
 				'hash' => $row->hash,
@@ -292,12 +344,14 @@ class Vwm_surveys_m extends CI_Model {
 	 *
 	 * @access public
 	 * @param string			Survey title
+	 * @param int				Site ID
 	 * @return int				Survey ID
 	 */
-	public function insert_survey($title)
+	public function insert_survey($title, $site_id)
 	{
 		$data = array(
 			'title' => $title,
+			'site_id' => (int)$site_id,
 			'hash' => md5( $title . microtime() ),
 			'created' => time()
 		);
@@ -305,6 +359,48 @@ class Vwm_surveys_m extends CI_Model {
 		$this->db->insert('vwm_surveys_surveys', $data);
 
 		return $this->db->insert_id();
+	}
+
+	/**
+	 * Copy a survey
+	 *
+	 * @access public
+	 * @param int				Survey ID
+	 * @param int				Survey ID that we will clone data from
+	 * @return bool
+	 */
+	public function clone_survey($survey_id, $clone_id)
+	{
+		// Make sure we have integers
+		$survey_id = (int)$survey_id;
+		$clone_id = (int)$clone_id;
+
+		$prefix = $this->EE->db->dbprefix;
+
+		$survey = $this->get_survey($survey_id);
+		$clone = $this->get_survey($clone_id);
+
+		// If both surveys exist
+		if ($survey AND $clone)
+		{
+			$this->db->query("
+				INSERT INTO `{$prefix}vwm_surveys_pages`
+				SELECT $survey_id survey_id, page, title, description
+				FROM `{$prefix}vwm_surveys_pages`
+				WHERE survey_id = $clone_id
+			");
+
+			$this->db->query("
+				INSERT INTO `{$prefix}vwm_surveys_questions` (title, type, options, custom_order, page, survey_id)
+				SELECT title, type, options, custom_order, page, $survey_id survey_id
+				FROM `{$prefix}vwm_surveys_questions`
+				WHERE survey_id = $clone_id
+			");
+
+			return TRUE;
+		}
+
+		return FALSE;
 	}
 
 	/**
@@ -362,25 +458,28 @@ class Vwm_surveys_m extends CI_Model {
 	public function get_questions_by_page($survey_id)
 	{
 		$data = array();
-		
+
 		// Get all questions for this survey
 		$query = $this->db
 			->where('survey_id', $survey_id)
 			->get('vwm_surveys_questions');
-		
+
 		// Grab all page titles for this survey
-		$page_titles = $this->get_survey_page_titles($survey_id);
-		
+		$pages = $this->get_pages($survey_id);
+
 		// If we have at least one page
-		if ( count($page_titles) > 0 )
+		if ( is_array($pages) AND count($pages) > 0 )
 		{
-			foreach ($page_titles as $page_number => $page_title)
+			foreach ($pages as $page_number => $page)
 			{
-				// Add in page title
-				$data[ $page_number ]['title'] = $page_title;
+				// Add in page details
+				$data[ $page_number ] = array(
+					'title' => isset($page['title']) ? $page['title'] : NULL,
+					'description' => isset($page['description']) ? $page['description'] : NULL
+				);
 			}
 		}
-		
+
 		// If this survey has some questions
 		if ($query->num_rows() > 0)
 		{
@@ -393,7 +492,7 @@ class Vwm_surveys_m extends CI_Model {
 				$data[ (int)$row['page'] ]['questions'][ $row['id'] ] = $row;
 			}
 		}
-		
+
 		return $data;
 	}
 	
@@ -668,15 +767,21 @@ class Vwm_surveys_m extends CI_Model {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Get all page titles for a given survey
+	 * Get all pages for a given survey
 	 *
 	 * @access public
 	 * @param int				Survey ID
 	 * @return array
 	 */
-	public function get_survey_page_titles($survey_id)
+	public function get_pages($survey_id, $page = NULL)
 	{
 		$data = array();
+
+		// If we are attempting to get a specific page
+		if ( isset($page) )
+		{
+			$this->db->where('page', $page);
+		}
 
 		$query = $this->db
 			->where('survey_id', $survey_id)
@@ -686,11 +791,28 @@ class Vwm_surveys_m extends CI_Model {
 		{
 			foreach ($query->result() as $row)
 			{
-				$data[ (int)$row->page ] = $row->title;
+				$data[ (int)$row->page ] = array(
+					'page' => $row->page,
+					'title' => $row->title,
+					'description' => $row->description
+				);
 			}
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Get details for a specific survey page
+	 *
+	 * @access public
+	 * @param int				Survey ID
+	 * @param int				Page number
+	 * @return array
+	 */
+	public function get_page($survey_id, $page)
+	{
+		return $this->get_pages($survey_id, $page);
 	}
 	
 	/**
@@ -701,7 +823,7 @@ class Vwm_surveys_m extends CI_Model {
 	 * @param string			Page title
 	 * @return mixed			If the page insertion was successful return the page number, else return FALSE
 	 */
-	public function insert_page($id, $title)
+	public function insert_page($id, $title, $description = '')
 	{
 		// Get the last page for this survey
 		$query = $this->db
@@ -718,8 +840,9 @@ class Vwm_surveys_m extends CI_Model {
 			
 			$data = array(
 				'survey_id' => $id,
+				'page' => $page,
 				'title' => $title,
-				'page' => $page
+				'description' => $description
 			);
 		
 			$this->db->insert('vwm_surveys_pages', $data);
@@ -732,8 +855,9 @@ class Vwm_surveys_m extends CI_Model {
 		{
 			$data = array(
 				'survey_id' => $id,
+				'page' => 0, // Our first page!
 				'title' => $title,
-				'page' => 0 // Our first page!
+				'description' => $description
 			);
 
 			$this->db->insert('vwm_surveys_pages', $data);
@@ -750,14 +874,15 @@ class Vwm_surveys_m extends CI_Model {
 	 * @param int				Survey ID
 	 * @param int				Page number
 	 * @param string			Page title
+	 * @param string			Page description
 	 * @return bool
 	 */
-	public function update_page($survey_id, $page, $title)
+	public function update_page($survey_id, $page, $title = '', $description = '')
 	{	
 		$this->db
 			->where('survey_id', $survey_id)
 			->where('page', $page)
-			->update( 'vwm_surveys_pages', array('title' => $title) );
+			->update( 'vwm_surveys_pages', array('title' => $title, 'description' => $description) );
 		
 		return $this->db->affected_rows() > 0 ? TRUE : FALSE;
 	}

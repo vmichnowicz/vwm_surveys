@@ -38,7 +38,13 @@
 					<!-- Page title -->
 					<label class="page_title">
 						<span>Page Title:</span>
-						<input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][title]" value="<?php echo $page['title']; ?>" />
+						<input type="text" name="vwm_surveys_pages[<?php echo $page_number; ?>][title]" value="<?php echo isset($page['description']) ? htmlspecialchars($page['title'], ENT_QUOTES, 'UTF-8') : NULL; ?>" />
+					</label>
+
+					<!-- Page description -->
+					<label class="page_description">
+						<span>Page Description:</span>
+						<textarea name="vwm_surveys_pages[<?php echo $page_number; ?>][description]" rows="3" cols="32"><?php echo isset($page['description']) ? htmlspecialchars($page['description'], ENT_QUOTES, 'UTF-8') : NULL; ?></textarea>
 					</label>
 
 					<!-- Questions -->
