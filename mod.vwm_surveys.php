@@ -17,7 +17,7 @@
  */
 class Vwm_surveys {
 
-	private $EE, $survey_id, $hash;
+	private $EE, $survey, $survey_id, $hash;
 	private static $question_types = array();
 	private static $submission_hashes = NULL;
 
@@ -97,7 +97,7 @@ class Vwm_surveys {
 	 * Get the survey ID
 	 *
 	 * @access private
-	 * @return null | int
+	 * @return null|int
 	 */
 	private function get_survey_id()
 	{
@@ -105,8 +105,24 @@ class Vwm_surveys {
 		{
 			$this->set_survey_id();
 		}
-
 		return $this->survey_id;
+	}
+
+	/**
+	 * Get a survey
+	 *
+	 * @access private
+	 * @param int $survey_id
+	 * @return array
+	 */
+	private function get_survey($survey_id = NULL)
+	{
+		if ( ! isset($this->survey) )
+		{
+			$survey_id = empty($survey_id) ? $this->get_survey_id() : $survey_id;
+			$this->survey = $this->EE->vwm_surveys_m->get_survey($survey_id);
+		}
+		return $this->survey;
 	}
 
 	/**
@@ -305,16 +321,19 @@ class Vwm_surveys {
 				$total_pages = count($survey['pages']);
 				$current_page = $submission['current_page'];
 
-				// Add in previously submitted data for the current page
-				foreach ($survey['pages'][ $current_page ]['questions'] as &$question)
+				// Add in previously submitted data for all pages
+				foreach ($survey['pages']as &$page)
 				{
-					if ( isset($submission['data'][ $question['id'] ]) )
+					foreach($page['questions'] as &$question)
 					{
-						$question['data'] = $submission['data'][ $question['id'] ];
+						if ( isset($submission['data'][ (int)$question['id'] ]) )
+						{
+							$question['data'] = $submission['data'][ $question['id'] ];
+						}
 					}
 				}
 
-				unset($question); // Unset $question as we will be using the same variable later
+				unset($question, $page); // Unset $question as we will be using the same variable later
 			}
 			// If the user provided an invalid hash string
 			else
@@ -462,23 +481,13 @@ class Vwm_surveys {
 	 */
 	public function submit_survey()
 	{
-		// Get the ID of the survey
 		$survey_id = (int)$this->EE->input->post('survey_id');
-
-		// Hash
 		$hash = $this->EE->input->post('hash');
-
-		// Redirect
 		$redirect = $this->EE->input->post('redirect');
-
-		// Current page
-		$current_page = (int)$this->EE->input->post('current_page');
-
-		// The submitted data (grouped by question ID)
-		$submitted_data = $this->EE->input->post('vwm_surveys_questions');
-		
-		// Is the user attempting to save this survey?
-		$save_survey = $this->EE->input->post('save') ? TRUE : FALSE;
+		$submitted_data = $this->EE->input->post('vwm_surveys_questions'); // The submitted question data (grouped by question ID)
+		$save_survey = $this->EE->input->post('save') ? TRUE : FALSE; // Is the user attempting to save this survey?
+		$submission =  $this->EE->vwm_surveys_submissions_m->get_survey_submission($hash);
+		$current_page = isset($submission['current_page']) ? $submission['current_page'] : 0;
 
 		$data = array();
 		$errors = array();
@@ -497,32 +506,57 @@ class Vwm_surveys {
 			// Calculate the total number of pages in this survey (one-based index)
 			$total_pages = count($survey['pages']);
 
-			// Loop through all questions in the current page
-			foreach ($survey['pages'][$current_page]['questions'] as $question)
+			if ( isset($survey['pages'][$current_page]['questions']) )
 			{
-				// Make sure user submitted this question and it is of the correct type
-				if ( isset($submitted_data[ $question['id'] ]['data'][ $question['type'] ]) )
+				// Add temp condition logic to a page
+				$survey['pages'][1]['conditions'][0] = array(
+					'type' => 'disabled_if',
+					'question_id' => 1,
+					'method' => 'equals',
+					'value' => 'Victor'
+				);
+
+				// Add in previously submitted data for all pages
+				foreach ($survey['pages']as &$page)
 				{
-					// Validate the question data using the custom helper functions for this question type
-					$validate_function = 'vwm_' . $question['type'] . '_validate';
-					$validate = $validate_function($question['id'], $submitted_data[ $question['id'] ]['data'][ $question['type'] ], $question['options']); // I <3 variable variables & variable functions
-
-					$data[ $question['id'] ] = $validate;
-
-					// If the question did not pass validation
-					if (isset($data[ $question['id'] ]['errors']))
+					foreach($page['questions'] as &$question)
 					{
-						// Add the error(s) to our error array
-						$errors[ $question['id'] ] = $data[ $question['id'] ]['errors'];
-
-						// Remove errors from our data array
-						unset($data[ $question['id'] ]['errors']);
+						if ( isset($submission['data'][ (int)$question['id'] ]) )
+						{
+							$question['data'] = $submission['data'][ $question['id'] ];
+						}
 					}
 				}
-				// If the user did not submit any data for this question
-				else
+
+				unset($question, $page);
+
+				// Loop through all questions in the current page
+				foreach ($survey['pages'][$current_page]['questions'] as $question)
 				{
-					$errors[ $question['id'] ][] = 'Question not completed.';
+					// Make sure user submitted this question and it is of the correct type
+					if ( isset($submitted_data[ $question['id'] ]['data'][ $question['type'] ]) )
+					{
+						// Validate the question data using the custom helper functions for this question type
+						$validate_function = 'vwm_' . $question['type'] . '_validate';
+						$validate = $validate_function($question['id'], $submitted_data[ $question['id'] ]['data'][ $question['type'] ], $question['options']); // I <3 variable variables & variable functions
+
+						$data[ $question['id'] ] = $validate;
+
+						// If the question did not pass validation
+						if (isset($data[ $question['id'] ]['errors']))
+						{
+							// Add the error(s) to our error array
+							$errors[ $question['id'] ] = $data[ $question['id'] ]['errors'];
+
+							// Remove errors from our data array
+							unset($data[ $question['id'] ]['errors']);
+						}
+					}
+					// If the user did not submit any data for this question
+					else
+					{
+						$errors[ $question['id'] ][] = 'Question not completed.';
+					}
 				}
 			}
 
@@ -532,8 +566,42 @@ class Vwm_surveys {
 				// If we are on the last page we can "complete" this survey
 				$complete = ( $current_page == ($total_pages - 1) ) ? TRUE : FALSE;
 
+				if ( isset($survey['pages'][$current_page + 1]['conditions']) && ! empty($survey['pages'][$current_page + 1]['conditions']) )
+				{
+					foreach($survey['pages'][$current_page + 1]['conditions'] as $condition)
+					{
+						// See if this page is disabled
+						if ($condition['type'] === 'disabled_if')
+						{
+							foreach($survey['pages'] as $page)
+							{
+								foreach($page['questions'] as $question)
+								{
+									if ( intval($question['id']) === intval($condition['question_id']) )
+									{
+										if ( function_exists('vwm_' . $question['type'] . '_condition_' . $condition['method']) )
+										{
+											$condition_function = 'vwm_' . $question['type'] . '_condition_' . $condition['method'];
+											// If this condition has been met and this page should be disabled
+											if ( $condition_function($question, $condition['value']) )
+											{
+												// Go to next page
+											}
+											else{
+												// This is current page
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 				// If we are not on the last page we can advance a page
-				$current_page = ( ($current_page < ($total_pages - 1)) ) ? $current_page + 1 : $current_page;
+				else
+				{
+					$current_page = ( ($current_page < ($total_pages - 1)) ) ? $current_page + 1 : $current_page;
+				}
 			}
 
 			// If we have a hash then we want to update an existing survey submission
@@ -544,9 +612,8 @@ class Vwm_surveys {
 			/**
 			 * If we do not have a hash then we want to create a new survey submission
 			 *
-			 * Even if there were errors we will still submit the data. This
-			 * allows us to populate the form when the user goes back to that
-			 * survey page to fix the subission errors
+			 * Even if there were errors we will still submit the data. This allows us to populate the form when the
+			 * user goes back to that survey page to fix the submission errors.
 			 */
 			else
 			{

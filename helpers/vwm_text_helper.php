@@ -52,4 +52,10 @@ function vwm_text_compile_results($survey_id, $submission_id, $question_options,
 	return $compiled_data;
 }
 
+function vwm_text_condition_equals($question, $value)
+{
+	return $question['data']['text'] == $value;
+}
+
+
 // EOF

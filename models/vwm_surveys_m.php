@@ -223,12 +223,9 @@ class Vwm_surveys_m extends CI_Model {
 	public function get_survey($survey_id, $site_id = NULL)
 	{
 		$data = array();
-		
-		$survey_details = $this->get_survey_details($survey_id, $site_id);
-		
-		if ($survey_details)
+
+		if ( $data = $this->get_survey_details($survey_id, $site_id) )
 		{
-			$data = $survey_details;
 			$data['pages'] = $this->get_questions_by_page($survey_id);
 		}
 		
