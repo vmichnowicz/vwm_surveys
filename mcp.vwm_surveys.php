@@ -91,7 +91,7 @@ class Vwm_surveys_mcp {
 	public function index()
 	{
 		// Page title
-		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('vwm_surveys_module_name'));
+		$this->EE->view->cp_page_title = $this->EE->lang->line('vwm_surveys_module_name');
 
 		// Top-right navigation buttons
 		$this->EE->cp->set_right_nav(array(
@@ -119,7 +119,7 @@ class Vwm_surveys_mcp {
 	public function survey_submission()
 	{
 		// Title
-		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('vwm_surveys_survey_submission'));
+		$this->EE->view->cp_page_title = $this->EE->lang->line('vwm_surveys_survey_submission');
 
 		// Top-right navigation buttons
 		$this->EE->cp->set_right_nav(array(
@@ -161,7 +161,7 @@ class Vwm_surveys_mcp {
 	public function survey_submissions()
 	{
 		// Title
-		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('vwm_surveys_survey_submissions'));
+		$this->EE->view->cp_page_title = $this->EE->lang->line('vwm_surveys_survey_submissions');
 
 		// Breadcrumb
 		$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
@@ -237,7 +237,7 @@ class Vwm_surveys_mcp {
 		else
 		{
 			// Page title
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('vwm_surveys_add_survey'));
+			$this->EE->view->cp_page_title = $this->EE->lang->line('vwm_surveys_add_survey');
 
 			// Add breadcrumb
 			$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
@@ -270,7 +270,7 @@ class Vwm_surveys_mcp {
 		$survey = $this->EE->vwm_surveys_m->get_survey_details($survey_id);
 
 		// Title
-		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('vwm_surveys_edit_survey'));
+		$this->EE->view->cp_page_title = $this->EE->lang->line('vwm_surveys_edit_survey');
 
 		// Breadcrumbs
 		$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
@@ -472,7 +472,7 @@ class Vwm_surveys_mcp {
 	public function survey_results()
 	{
 		// Page title
-		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('vwm_surveys_survey_results'));
+		$this->EE->view->cp_page_title = $this->EE->lang->line('vwm_surveys_survey_results');
 
 		// Top-right navigation buttons
 		$this->EE->cp->set_right_nav(array(
@@ -516,7 +516,7 @@ class Vwm_surveys_mcp {
 		$submissions = $this->EE->vwm_surveys_submissions_m->get_completed_survey_submissions($survey_id);
 
 		// Title
-		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('vwm_surveys_compile_survey_results'));
+		$this->EE->view->cp_page_title = $this->EE->lang->line('vwm_surveys_compile_survey_results');
 
 		// Breadcrumb
 		$this->EE->cp->set_breadcrumb(BASE . AMP . 'C=addons_modules' . AMP . 'M=show_module_cp' . AMP . 'module=vwm_surveys', lang('vwm_surveys_module_name'));
