@@ -8,6 +8,10 @@ VWM Surveys is licensed under the [Apache 2 License](http://www.apache.org/licen
 
 ## Change Log
 
+### 0.5.2
+
+* Fix [installation issue](https://twitter.com/HolaValentin/status/507203399121924097)
+
 ### 0.5.1
 
 * Fix [issue with exp_security_hashes table in ExpressionEngine 2.5.4](http://expressionengine.stackexchange.com/questions/1999/database-error-exp-security-hashes)

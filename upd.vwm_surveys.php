@@ -18,7 +18,7 @@
 class Vwm_surveys_upd {
 
 	private $EE;
-	public $version = '0.5';
+	public $version = '0.5.2';
 	const MIN_PHP_VERSION = '5.3.0';
 
 	/**
@@ -97,7 +97,7 @@ class Vwm_surveys_upd {
 				`survey_id` mediumint(9) NOT NULL,
 				`page` tinyint(4) NOT NULL DEFAULT '0',
 				`title` varchar(128) NOT NULL DEFAULT '',
-				`description` mediumtext NOT NULL DEFAULT '',
+				`description` mediumtext NOT NULL,
 				UNIQUE KEY `survey_id` (`survey_id`,`page`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 		");
